@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import type { Category } from "../types/category";
+import type { AnswerValue } from "../types/question";
 
 // 워크플로우 진행 상태
 export type Status =
@@ -10,9 +11,6 @@ export type Status =
   | "generating" // Gemini 호출 중
   | "done"
   | "error";
-
-// 답변 값 — 단일 선택/직접입력은 string, 다중 선택은 string[]
-export type AnswerValue = string | string[];
 
 interface PromptState {
   originalInput: string;

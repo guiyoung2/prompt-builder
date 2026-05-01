@@ -5,9 +5,9 @@
 
 ## 진행 요약
 
-- 현재 진행 중: **Phase 2-1 직전** (Phase 1까지 완료)
-- 완료: 7 / 22
-- 다음 단위: `Phase 2-1 — types/question.ts + 공통 질문 (Question/Answer 타입)`
+- 현재 진행 중: **Phase 2-2 직전** (Phase 2-1까지 완료)
+- 완료: 8 / 22
+- 다음 단위: `Phase 2-2 — templates/questions/frontend.ts (4~6문항)`
 
 ## 핵심 결정 (변경 시 PLAN.md 동기화)
 
@@ -43,8 +43,9 @@
 
 ## Phase 2 — 카테고리별 질문 템플릿
 
-- [ ] **2-1** `src/types/question.ts` + 공통 질문 (Question/Answer 타입)
-  - 검증: 타입 export 후 빌드/lint 통과
+- [x] **2-1** `src/types/question.ts` + 공통 질문 (Question/Answer 타입)
+  - 검증: 빌드/lint 통과 ✓
+  - 비고: `AnswerValue`/`AnswerMap`/`Choice`/`Question` (single|multi|text) 정의. `templates/questions/common.ts`에 priority/constraints 2문항. store는 question.ts의 `AnswerValue` 사용하도록 정리.
 - [ ] **2-2** `src/templates/questions/frontend.ts` (4~6문항)
   - 검증: 동일 스키마, lint 통과
 - [ ] **2-3** `src/templates/questions/backend.ts` (4~6문항)
@@ -90,7 +91,8 @@
 - 현재까지 작성된 모든 파일은 빌드/lint/검증 통과
 - Phase 1 분류 함수는 **로직만 완성**되어 있고 화면에 아직 노출되지 않음 (의도된 단계 분리)
 - main.tsx에서 dev 모드일 때 `runClassifierSelfCheck()`가 브라우저 콘솔에 표 출력
-- 다음 작업은 **Phase 2-1**: `Question`/`Answer` 타입 정의 + 모든 카테고리에서 공통으로 쓸 질문 (예: 우선순위/제약) 1~2개
+- 질문 타입 컨벤션: `Question` discriminated union (`type: "single" | "multi" | "text"`), `Choice = { id, label, description? }`, `AnswerValue = string | string[]`. 공통 질문은 카테고리별 질문 뒤에 합쳐서 노출 예정.
+- 다음 작업은 **Phase 2-2**: frontend 카테고리 질문 4~6문항 (`templates/questions/frontend.ts`). 같은 스키마 유지.
 
 ## 알려진 약점 / 추후 개선 후보
 
