@@ -5,9 +5,9 @@
 
 ## 진행 요약
 
-- 현재 진행 중: **Phase 3-2 직전** (Phase 3-1까지 완료)
-- 완료: 12 / 22
-- 다음 단위: `Phase 3-2 — components/TextInput.tsx`
+- 현재 진행 중: **Phase 3-3 직전** (Phase 3-2까지 완료)
+- 완료: 13 / 22
+- 다음 단위: `Phase 3-3 — features/questions/StepForm.tsx`
 
 ## 핵심 결정 (변경 시 PLAN.md 동기화)
 
@@ -61,8 +61,9 @@
 - [x] **3-1** `src/components/Choice.tsx` (단일/다중 선택, allowCustom)
   - 검증: 빌드/lint 통과 ✓ (single/multi/custom 분기, allowCustom 입력박스 활성/해제 동작)
   - 비고: `ChoiceProps = SingleProps | MultiProps` 디스크리미네이트. 답변 표현은 **옵션 B** — 미리 정의된 보기는 `choice.id` 그대로, "기타"는 입력 텍스트가 바로 답변값. multi의 자유 텍스트는 배열 안 1슬롯으로 한정. 실제 화면 통합은 Phase 3-3에서.
-- [ ] **3-2** `src/components/TextInput.tsx`
-  - 검증: 컨트롤드 입력 동작
+- [x] **3-2** `src/components/TextInput.tsx`
+  - 검증: 빌드/lint 통과 ✓ (컨트롤드 textarea, value/onChange 외부 동기화)
+  - 비고: TextQuestion 타입 전용. textarea 사용 (멀티라인 자유 입력 — 예: 제약사항). placeholder/aria-label 처리. 스타일은 Choice의 CustomInput 토큰과 일관 (border, primarySoft focus ring). 실제 화면 통합은 Phase 3-3에서.
 - [ ] **3-3** `src/features/questions/StepForm.tsx` (진행률, 이전/다음, store 연동)
   - 검증: 카테고리 4개 끝까지 진행 후 answers 객체 정확
 - [ ] **3-4** 입력 → 분류 결과 표시 → 스텝 폼 진입 흐름 연결
@@ -97,9 +98,10 @@
 - main.tsx에서 dev 모드일 때 `runClassifierSelfCheck()`가 브라우저 콘솔에 표 출력
 - 질문 타입 컨벤션: `Question` discriminated union (`type: "single" | "multi" | "text"`), `Choice = { id, label, description? }`, `AnswerValue = string | string[]`. 공통 질문은 카테고리별 질문 뒤에 합쳐서 노출 예정.
 - 카테고리별 질문 ID 컨벤션: prefix로 카테고리 구분 (`fe_*`, `be_*`, `bf_*`, `rf_*` 모두 완료). 충돌 방지 + 디버깅 가독성.
-- `Choice.tsx`는 만들어졌지만 아직 어디서도 import되지 않음 — Phase 3-3 StepForm에서 처음 호출 예정.
+- `Choice.tsx` / `TextInput.tsx` 모두 만들어졌지만 아직 어디서도 import되지 않음 — Phase 3-3 StepForm에서 처음 호출 예정.
 - 답변 데이터 표현 정책 (Phase 3-1 결정): **choice id 또는 자유 텍스트가 같은 string 슬롯에 들어감** (옵션 B). buildPrompt 단계에서 `id ∈ choices ? label : value` 한 줄 분기로 처리.
-- 다음 작업은 **Phase 3-2**: `src/components/TextInput.tsx` — `TextQuestion` 타입 (placeholder, 컨트롤드 입력) 처리.
+- TextInput 인터페이스: `{ question: TextQuestion; value: string; onChange: (v: string) => void }` — Choice의 Single 변형과 동일한 컨트롤드 시그니처라 StepForm에서 question.type 분기로 자연스럽게 합쳐진다.
+- 다음 작업은 **Phase 3-3**: `src/features/questions/StepForm.tsx` — 진행률 표시, 이전/다음, 카테고리별 질문 + 공통 질문 합치기, store 연동.
 
 ## 알려진 약점 / 추후 개선 후보
 
