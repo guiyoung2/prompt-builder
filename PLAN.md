@@ -5,9 +5,9 @@
 
 ## 진행 요약
 
-- 현재 진행 중: **Phase 3-4 직전** (Phase 3-3까지 완료)
-- 완료: 14 / 22
-- 다음 단위: `Phase 3-4 — 입력 → 분류 결과 → 스텝 폼 진입 흐름 연결`
+- 현재 진행 중: **Phase 4-1 직전** (Phase 3-4까지 완료, Phase 3 완료)
+- 완료: 15 / 22
+- 다음 단위: `Phase 4-1 — /api/generate.ts Vercel Serverless Function`
 
 ## 핵심 결정 (변경 시 PLAN.md 동기화)
 
@@ -67,8 +67,9 @@
 - [x] **3-3** `src/features/questions/StepForm.tsx` (진행률, 이전/다음, store 연동)
   - 검증: 빌드/lint 통과 ✓ (실제 4 카테고리 손 진행 검증은 Phase 3-4 화면 통합 후로 이월)
   - 비고: store 100% 연동 (props 없음). `templates/questions/index.ts`에 `QUESTIONS_BY_CATEGORY` (카테고리 + 공통 결합) 추가. 진행률 `1/N` + progress bar. `QuestionInput` 서브 컴포넌트로 `single|multi|text` 분기. `required: false`는 빈 답 허용. `currentStep === total` 도달 시 placeholder만 표시 (status 전환은 Phase 3-4 책임).
-- [ ] **3-4** 입력 → 분류 결과 표시 → 스텝 폼 진입 흐름 연결
-  - 검증: 모호한 입력 → 카테고리 추정 → 질문 시작까지 끊김 없음
+- [x] **3-4** 입력 → 분류 결과 표시 → 스텝 폼 진입 흐름 연결
+  - 검증: 빌드/lint 통과 ✓ (모호한 입력 → 카테고리 추정 → 답변 화면 진입까지 마찰 없음)
+  - 비고: UX는 옵션 C (항상 자동 진입) + low confidence는 frontend 폴백 후 헤더에서 변경. `classifying` status는 두지 않음 (동기 분류라 마찰만 됨). `App.tsx`에 `Workflow`/`IntentInput` 분리, `features/intent/CategoryHeader.tsx` 추가 (4칩 변경 + "처음으로"). `store.setCategory`는 카테고리 변경 시 `currentStep=0`으로 리셋(answers는 보존, ID prefix 분리로 충돌 X).
 
 ## Phase 4 — LLM 프록시 + 프롬프트 조립
 
@@ -95,15 +96,14 @@
 ## 다음 세션 시작 시 컨텍스트
 
 - 현재까지 작성된 모든 파일은 빌드/lint/검증 통과
-- Phase 1 분류 함수는 **로직만 완성**되어 있고 화면에 아직 노출되지 않음 (의도된 단계 분리)
 - main.tsx에서 dev 모드일 때 `runClassifierSelfCheck()`가 브라우저 콘솔에 표 출력
-- 질문 타입 컨벤션: `Question` discriminated union (`type: "single" | "multi" | "text"`), `Choice = { id, label, description? }`, `AnswerValue = string | string[]`. 공통 질문은 카테고리별 질문 뒤에 합쳐서 노출 예정.
-- 카테고리별 질문 ID 컨벤션: prefix로 카테고리 구분 (`fe_*`, `be_*`, `bf_*`, `rf_*` 모두 완료). 충돌 방지 + 디버깅 가독성.
-- `Choice.tsx` / `TextInput.tsx` 는 `StepForm`의 `QuestionInput` 서브 컴포넌트에서 question.type 분기로 호출됨. 단, `StepForm` 자체는 아직 어디서도 import되지 않음 — Phase 3-4에서 App에 연결 예정.
-- 답변 데이터 표현 정책 (Phase 3-1 결정): **choice id 또는 자유 텍스트가 같은 string 슬롯에 들어감** (옵션 B). buildPrompt 단계에서 `id ∈ choices ? label : value` 한 줄 분기로 처리.
-- TextInput 인터페이스: `{ question: TextQuestion; value: string; onChange: (v: string) => void }` — Choice의 Single 변형과 동일한 컨트롤드 시그니처라 StepForm에서 question.type 분기로 자연스럽게 합쳐진다.
+- 질문 타입 컨벤션: `Question` discriminated union (`type: "single" | "multi" | "text"`), `Choice = { id, label, description? }`, `AnswerValue = string | string[]`. 공통 질문은 카테고리별 질문 뒤에 합쳐서 노출.
+- 카테고리별 질문 ID 컨벤션: prefix로 카테고리 구분 (`fe_*`, `be_*`, `bf_*`, `rf_*`). 충돌 방지 + 디버깅 가독성.
+- 답변 데이터 표현 정책 (Phase 3-1 결정): **choice id 또는 자유 텍스트가 같은 string 슬롯에 들어감** (옵션 B). buildPrompt 단계에서 `id ∈ choices ? label : value` 한 줄 분기로 처리 예정 (Phase 4-3).
 - ChoiceProps가 `SingleProps | MultiProps` union이라 onChange 인자 타입이 좁혀지지 않음 — StepForm에서 호출 시 콜백 매개변수 타입 명시(`(v: string)` / `(v: string[])`) 필요.
-- 다음 작업은 **Phase 3-4**: `App.tsx`에 입력 → `classifyIntent` 호출 → 분류 결과 카드 표시 → `setCategory` + `setStatus("answering")` → `StepForm` 마운트 흐름을 끊김 없이 연결. 마지막 단계 "완료" 클릭 시 `currentStep === total` 도달 — 그 시점 status 전환은 4-1과 함께 결정.
+- **Phase 3-4 결정 (UX)**: `idle → answering` 직행 (classifying status 미사용). `CategoryHeader`로 추정 표시 + 4칩 변경 + "처음으로". low confidence는 frontend 폴백 후 헤더에서 즉시 변경 가능. 카테고리 변경 시 `currentStep` 0으로 리셋(answers는 ID prefix 분리로 보존 OK).
+- `currentStep === total` 도달 시 status 전환은 미정 — Phase 4-4(builder 통합)에서 "generating"으로 트리거. 그 전까지는 StepForm 내부 placeholder가 임시 화면.
+- 다음 작업은 **Phase 4-1**: Vercel Serverless Function `api/generate.ts` 작성. `GEMINI_API_KEY` env로 `gemini-3-flash-preview` 호출 프록시. `vercel dev`로 200/4xx 응답 검증. (앞 단계까지 화면은 "answering 마지막 → placeholder"에서 멈춰 있음 — 4-4에서 연결됨.)
 
 ## 알려진 약점 / 추후 개선 후보
 

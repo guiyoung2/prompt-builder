@@ -1,4 +1,9 @@
+import { useState } from "react";
 import styled from "styled-components";
+import { classifyIntent } from "./features/intent/classifyIntent";
+import { CategoryHeader } from "./features/intent/CategoryHeader";
+import { StepForm } from "./features/questions/StepForm";
+import { usePromptStore } from "./store/promptStore";
 
 const Page = styled.div`
   min-height: 100%;
@@ -66,6 +71,7 @@ const Textarea = styled.textarea`
   background: ${({ theme }) => theme.color.surface};
   outline: none;
   transition: border-color 0.15s ease;
+  font: inherit;
 
   &:focus {
     border-color: ${({ theme }) => theme.color.primary};
@@ -88,7 +94,7 @@ const SubmitButton = styled.button`
   cursor: pointer;
   transition: background-color 0.15s ease;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: ${({ theme }) => theme.color.primaryHover};
   }
 
@@ -110,19 +116,65 @@ function App() {
 
       <Main>
         <MainInner>
-          <InputCard>
-            <Label htmlFor="prompt-input">어떤 작업이 필요하신가요?</Label>
-            <Textarea
-              id="prompt-input"
-              placeholder="예) 히어로 섹션 구현해줘 / 로그인 API 만들어줘 / 무한 스크롤 버그 고쳐줘"
-            />
-            <SubmitButton type="button" disabled>
-              시작하기
-            </SubmitButton>
-          </InputCard>
+          <Workflow />
         </MainInner>
       </Main>
     </Page>
+  );
+}
+
+// 진행 상태(status)에 따라 화면을 분기.
+// - idle: 입력 카드 → "시작하기"로 분류 후 answering 진입
+// - answering 이후: CategoryHeader + StepForm
+// classifying 단계는 두지 않는다 (분류가 동기라 별도 확인 화면이 마찰만 됨).
+function Workflow() {
+  const status = usePromptStore((s) => s.status);
+
+  if (status === "idle") {
+    return <IntentInput />;
+  }
+
+  return (
+    <>
+      <CategoryHeader />
+      <StepForm />
+    </>
+  );
+}
+
+// 사용자 입력 → classifyIntent → store 액션 호출로 답변 화면 진입.
+// 입력 자체는 전송 직전까지만 의미가 있으므로 로컬 useState로 관리하고,
+// 시작 시점에만 store에 originalInput을 기록한다.
+function IntentInput() {
+  const [input, setInput] = useState("");
+  const setOriginalInput = usePromptStore((s) => s.setOriginalInput);
+  const setCategory = usePromptStore((s) => s.setCategory);
+  const setStatus = usePromptStore((s) => s.setStatus);
+
+  const trimmed = input.trim();
+  const canSubmit = trimmed.length > 0;
+
+  const handleStart = () => {
+    if (!canSubmit) return;
+    const result = classifyIntent(trimmed);
+    setOriginalInput(trimmed);
+    setCategory(result.category);
+    setStatus("answering");
+  };
+
+  return (
+    <InputCard>
+      <Label htmlFor="prompt-input">어떤 작업이 필요하신가요?</Label>
+      <Textarea
+        id="prompt-input"
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        placeholder="예) 히어로 섹션 구현해줘 / 로그인 API 만들어줘 / 무한 스크롤 버그 고쳐줘"
+      />
+      <SubmitButton type="button" disabled={!canSubmit} onClick={handleStart}>
+        시작하기
+      </SubmitButton>
+    </InputCard>
   );
 }
 

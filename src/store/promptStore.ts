@@ -50,7 +50,11 @@ export const usePromptStore = create<PromptState & PromptActions>()(
       ...initialState,
       setOriginalInput: (v) =>
         set({ originalInput: v }, false, "setOriginalInput"),
-      setCategory: (c) => set({ category: c }, false, "setCategory"),
+      setCategory: (c) =>
+        // 카테고리가 바뀌면 질문 셋이 달라지므로 진행 단계는 처음으로 되돌린다.
+        // 답변(answers)은 유지 — ID prefix가 카테고리별로 달라 충돌이 없고,
+        // 공통 질문(co_*)은 재사용되므로 사용자 입력을 보존한다.
+        set({ category: c, currentStep: 0 }, false, "setCategory"),
       setAnswer: (questionId, value) =>
         set(
           (s) => ({ answers: { ...s.answers, [questionId]: value } }),
