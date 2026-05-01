@@ -5,9 +5,9 @@
 
 ## 진행 요약
 
-- 현재 진행 중: **Phase 2-3 직전** (Phase 2-2까지 완료)
-- 완료: 9 / 22
-- 다음 단위: `Phase 2-3 — templates/questions/backend.ts (4~6문항)`
+- 현재 진행 중: **Phase 2-4 직전** (Phase 2-3까지 완료)
+- 완료: 10 / 22
+- 다음 단위: `Phase 2-4 — templates/questions/{bugfix,refactor}.ts`
 
 ## 핵심 결정 (변경 시 PLAN.md 동기화)
 
@@ -49,8 +49,9 @@
 - [x] **2-2** `src/templates/questions/frontend.ts` (4~6문항)
   - 검증: 빌드/lint 통과 ✓
   - 비고: 6문항 (작업유형 / 프레임워크 / 스타일링 / 상태관리 / 데이터페칭 / 추가요구). 5개는 `single+allowCustom`, 마지막 1개만 `multi+optional`.
-- [ ] **2-3** `src/templates/questions/backend.ts` (4~6문항)
-  - 검증: 동일 스키마, lint 통과
+- [x] **2-3** `src/templates/questions/backend.ts` (4~6문항)
+  - 검증: 빌드/lint 통과 ✓
+  - 비고: 6문항 (작업유형 / 런타임 / 프레임워크 / DB / 인증 / 추가요구). 5개는 `single+allowCustom`, 마지막 1개만 `multi+optional`. ID prefix `be_*`. frontend.ts와 동일 스키마.
 - [ ] **2-4** `src/templates/questions/{bugfix,refactor}.ts`
   - 검증: 4개 카테고리 모두 같은 스키마
 
@@ -93,8 +94,8 @@
 - Phase 1 분류 함수는 **로직만 완성**되어 있고 화면에 아직 노출되지 않음 (의도된 단계 분리)
 - main.tsx에서 dev 모드일 때 `runClassifierSelfCheck()`가 브라우저 콘솔에 표 출력
 - 질문 타입 컨벤션: `Question` discriminated union (`type: "single" | "multi" | "text"`), `Choice = { id, label, description? }`, `AnswerValue = string | string[]`. 공통 질문은 카테고리별 질문 뒤에 합쳐서 노출 예정.
-- 카테고리별 질문 ID 컨벤션: prefix로 카테고리 구분 (`fe_*`, 다음은 `be_*`/`bf_*`/`rf_*` 예정). 충돌 방지 + 디버깅 가독성.
-- 다음 작업은 **Phase 2-3**: backend 카테고리 질문 4~6문항 (`templates/questions/backend.ts`). frontend.ts와 동일 스키마, ID prefix `be_*`.
+- 카테고리별 질문 ID 컨벤션: prefix로 카테고리 구분 (`fe_*`, `be_*` 완료. 다음은 `bf_*`/`rf_*` 예정). 충돌 방지 + 디버깅 가독성.
+- 다음 작업은 **Phase 2-4**: bugfix / refactor 카테고리 질문 (`templates/questions/bugfix.ts`, `templates/questions/refactor.ts`). 동일 스키마, ID prefix `bf_*` / `rf_*`. 4개 카테고리 질문 모두 동일 스키마로 마무리.
 
 ## 알려진 약점 / 추후 개선 후보
 
