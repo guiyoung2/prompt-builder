@@ -5,9 +5,9 @@
 
 ## 진행 요약
 
-- 현재 진행 중: **Phase 2-4 직전** (Phase 2-3까지 완료)
-- 완료: 10 / 22
-- 다음 단위: `Phase 2-4 — templates/questions/{bugfix,refactor}.ts`
+- 현재 진행 중: **Phase 3-1 직전** (Phase 2-4까지 완료, Phase 2 종료)
+- 완료: 11 / 22
+- 다음 단위: `Phase 3-1 — components/Choice.tsx`
 
 ## 핵심 결정 (변경 시 PLAN.md 동기화)
 
@@ -52,8 +52,9 @@
 - [x] **2-3** `src/templates/questions/backend.ts` (4~6문항)
   - 검증: 빌드/lint 통과 ✓
   - 비고: 6문항 (작업유형 / 런타임 / 프레임워크 / DB / 인증 / 추가요구). 5개는 `single+allowCustom`, 마지막 1개만 `multi+optional`. ID prefix `be_*`. frontend.ts와 동일 스키마.
-- [ ] **2-4** `src/templates/questions/{bugfix,refactor}.ts`
-  - 검증: 4개 카테고리 모두 같은 스키마
+- [x] **2-4** `src/templates/questions/{bugfix,refactor}.ts`
+  - 검증: 빌드/lint 통과 ✓ (4개 카테고리 모두 동일 스키마: 5 single+allowCustom + 1 multi optional)
+  - 비고: bugfix 6문항 (작업유형 / 영향범위 / 재현성 / 발생환경 / 단서 / 추가요구), refactor 6문항 (작업유형 / 범위 / 동기 / 테스트커버리지 / 호환성 / 추가요구). ID prefix `bf_*` / `rf_*`.
 
 ## Phase 3 — 스텝 폼 UI
 
@@ -94,8 +95,8 @@
 - Phase 1 분류 함수는 **로직만 완성**되어 있고 화면에 아직 노출되지 않음 (의도된 단계 분리)
 - main.tsx에서 dev 모드일 때 `runClassifierSelfCheck()`가 브라우저 콘솔에 표 출력
 - 질문 타입 컨벤션: `Question` discriminated union (`type: "single" | "multi" | "text"`), `Choice = { id, label, description? }`, `AnswerValue = string | string[]`. 공통 질문은 카테고리별 질문 뒤에 합쳐서 노출 예정.
-- 카테고리별 질문 ID 컨벤션: prefix로 카테고리 구분 (`fe_*`, `be_*` 완료. 다음은 `bf_*`/`rf_*` 예정). 충돌 방지 + 디버깅 가독성.
-- 다음 작업은 **Phase 2-4**: bugfix / refactor 카테고리 질문 (`templates/questions/bugfix.ts`, `templates/questions/refactor.ts`). 동일 스키마, ID prefix `bf_*` / `rf_*`. 4개 카테고리 질문 모두 동일 스키마로 마무리.
+- 카테고리별 질문 ID 컨벤션: prefix로 카테고리 구분 (`fe_*`, `be_*`, `bf_*`, `rf_*` 모두 완료). 충돌 방지 + 디버깅 가독성.
+- 다음 작업은 **Phase 3-1**: `src/components/Choice.tsx` (단일/다중 선택, allowCustom 지원). Phase 3은 스텝 폼 UI 단계로, 여태 데이터/타입만 있던 질문 템플릿이 처음으로 화면에 노출되는 단계.
 
 ## 알려진 약점 / 추후 개선 후보
 
