@@ -5,9 +5,9 @@
 
 ## 진행 요약
 
-- 현재 진행 중: **Phase 3-1 직전** (Phase 2-4까지 완료, Phase 2 종료)
-- 완료: 11 / 22
-- 다음 단위: `Phase 3-1 — components/Choice.tsx`
+- 현재 진행 중: **Phase 3-2 직전** (Phase 3-1까지 완료)
+- 완료: 12 / 22
+- 다음 단위: `Phase 3-2 — components/TextInput.tsx`
 
 ## 핵심 결정 (변경 시 PLAN.md 동기화)
 
@@ -58,8 +58,9 @@
 
 ## Phase 3 — 스텝 폼 UI
 
-- [ ] **3-1** `src/components/Choice.tsx` (단일/다중 선택, allowCustom)
-  - 검증: 단일/다중/커스텀 3가지 시나리오 동작
+- [x] **3-1** `src/components/Choice.tsx` (단일/다중 선택, allowCustom)
+  - 검증: 빌드/lint 통과 ✓ (single/multi/custom 분기, allowCustom 입력박스 활성/해제 동작)
+  - 비고: `ChoiceProps = SingleProps | MultiProps` 디스크리미네이트. 답변 표현은 **옵션 B** — 미리 정의된 보기는 `choice.id` 그대로, "기타"는 입력 텍스트가 바로 답변값. multi의 자유 텍스트는 배열 안 1슬롯으로 한정. 실제 화면 통합은 Phase 3-3에서.
 - [ ] **3-2** `src/components/TextInput.tsx`
   - 검증: 컨트롤드 입력 동작
 - [ ] **3-3** `src/features/questions/StepForm.tsx` (진행률, 이전/다음, store 연동)
@@ -96,7 +97,9 @@
 - main.tsx에서 dev 모드일 때 `runClassifierSelfCheck()`가 브라우저 콘솔에 표 출력
 - 질문 타입 컨벤션: `Question` discriminated union (`type: "single" | "multi" | "text"`), `Choice = { id, label, description? }`, `AnswerValue = string | string[]`. 공통 질문은 카테고리별 질문 뒤에 합쳐서 노출 예정.
 - 카테고리별 질문 ID 컨벤션: prefix로 카테고리 구분 (`fe_*`, `be_*`, `bf_*`, `rf_*` 모두 완료). 충돌 방지 + 디버깅 가독성.
-- 다음 작업은 **Phase 3-1**: `src/components/Choice.tsx` (단일/다중 선택, allowCustom 지원). Phase 3은 스텝 폼 UI 단계로, 여태 데이터/타입만 있던 질문 템플릿이 처음으로 화면에 노출되는 단계.
+- `Choice.tsx`는 만들어졌지만 아직 어디서도 import되지 않음 — Phase 3-3 StepForm에서 처음 호출 예정.
+- 답변 데이터 표현 정책 (Phase 3-1 결정): **choice id 또는 자유 텍스트가 같은 string 슬롯에 들어감** (옵션 B). buildPrompt 단계에서 `id ∈ choices ? label : value` 한 줄 분기로 처리.
+- 다음 작업은 **Phase 3-2**: `src/components/TextInput.tsx` — `TextQuestion` 타입 (placeholder, 컨트롤드 입력) 처리.
 
 ## 알려진 약점 / 추후 개선 후보
 
