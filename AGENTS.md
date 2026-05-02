@@ -23,8 +23,9 @@
 ## 기술 스택
 
 - **React 19** + **TypeScript 6** + **Vite 8**
-- **styled-components 6** (현재 설치됨)
-- **Zustand**, **TanStack Query** (미설치 — 필요 시점에 도입)
+- **styled-components 6** (설치됨)
+- **Zustand** (설치됨 · `src/store/promptStore.ts`)
+- **TanStack Query** (미설치 — 필요 시점에 도입)
 - **LLM**: Gemini Flash API (마지막 단계 변환에만 사용, 의도 분석/질문 생성에는 사용 X)
 
 ## 폴더 구조 (제안)
@@ -45,7 +46,7 @@ src/
 ## 개발 원칙
 
 - 작성/리뷰 기준은 `.cursor/rules/karpathy-guidelines.mdc`를 따른다.
-- 미설치 라이브러리(Zustand, TanStack Query)는 **요청 없이 미리 설치/도입하지 않는다**.
+- **TanStack Query** 등 미도입 라이브러리는 **요청 없이 미리 설치/도입하지 않는다**. (Zustand는 이미 사용 중.)
 - LLM 호출은 마지막 단계에만. 비용·지연 발생 지점이므로 호출 횟수 최소화.
 
 ## 명령어

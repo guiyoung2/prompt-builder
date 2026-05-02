@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(mkdir -p \"C:\\\\Users\\\\귀영\\\\Desktop\\\\ReactProject\\\\prompt-builder\\\\.claude\\\\rules\")",
+      "Bash(mv \"C:\\\\Users\\\\귀영\\\\Desktop\\\\ReactProject\\\\prompt-builder\\\\.claude\\\\karpathy-guidelines.md\" \"C:\\\\Users\\\\귀영\\\\Desktop\\\\ReactProject\\\\prompt-builder\\\\.claude\\\\rules\\\\karpathy-guidelines.md\")",
+      "Bash(mv \"C:\\\\Users\\\\귀영\\\\Desktop\\\\ReactProject\\\\prompt-builder\\\\.claude\\\\react-patterns.md\" \"C:\\\\Users\\\\귀영\\\\Desktop\\\\ReactProject\\\\prompt-builder\\\\.claude\\\\rules\\\\react-patterns.md\")",
+      "Bash(mv \"C:\\\\Users\\\\귀영\\\\Desktop\\\\ReactProject\\\\prompt-builder\\\\.claude\\\\styled-components.md\" \"C:\\\\Users\\\\귀영\\\\Desktop\\\\ReactProject\\\\prompt-builder\\\\.claude\\\\rules\\\\styled-components.md\")",
+      "Bash(mv \"C:\\\\Users\\\\귀영\\\\Desktop\\\\ReactProject\\\\prompt-builder\\\\.claude\\\\typescript-standards.md\" \"C:\\\\Users\\\\귀영\\\\Desktop\\\\ReactProject\\\\prompt-builder\\\\.claude\\\\rules\\\\typescript-standards.md\")",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
+    ]
+  }
+}

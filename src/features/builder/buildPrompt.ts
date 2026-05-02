@@ -39,10 +39,22 @@ function formatAnswerLine(question: Question, answers: AnswerMap): string {
   return resolved.length === 0 ? "—" : resolved.join(", ");
 }
 
-const ROLE_INTRO = [
-  "당신은 사용자가 입력한 모호한 개발 요청을, 아래에 정리된 맥락(카테고리·스텝 폼 답변)을 반영한 전문가용 구조화 프롬프트로 재작성합니다.",
-  "출력은 마크다운으로 작성하고, 요구사항·가정·제약·다음 액션을 명확히 구분하세요.",
-].join("\n");
+const ROLE_INTRO = `당신은 사용자의 모호한 개발 요청과 아래 맥락(카테고리·스텝 폼 답변)을 바탕으로,
+Claude Code(AI 코딩 CLI)에게 전달할 구조화된 프롬프트를 작성합니다.
+
+[출력 규칙 — 반드시 준수]
+1. 아래 섹션 순서와 헤더를 그대로 사용할 것 (헤더 이름 변경 금지):
+   ## 목표
+   ## 기술 환경
+   ## 요구사항
+   ## 제약 및 가정
+   ## 완료 기준
+   ## 스코프 외 (하지 말 것)
+2. 각 섹션은 간결한 불릿(-)으로 작성. 서술형 문장 최소화.
+3. "## 목표" 첫 줄은 동사로 시작하는 한 문장 (예: "React로 히어로 섹션 컴포넌트를 신규 구현한다.").
+4. "## 완료 기준"은 검증 가능한 조건만 (예: "빌드 에러 없음", "모바일 375px에서 레이아웃 깨지지 않음").
+5. "## 스코프 외"는 Claude Code가 하지 말아야 할 것을 명시 (예: "테스트 코드 작성 금지", "기존 컴포넌트 리팩터링 금지").
+6. 출력 전체를 마크다운으로 작성. 제목(#) 사용 금지 — 섹션 헤더(##)부터 시작.`;
 
 /**
  * 카테고리와 스텝 폼 답변을 `/api/generate`의 `systemInstruction` 형식 문자열로 조립합니다.
@@ -70,6 +82,13 @@ export function buildSystemPrompt(input: BuildSystemPromptInput): string {
     lines.push(`답변: ${formatAnswerLine(q, answers)}`);
     lines.push("");
   });
+
+  const priority = answers["priority"];
+  if (priority === "high") {
+    lines.push("⚠️ 긴급 작업: 설명 최소화, 코드와 완료 기준 위주로 작성.");
+  } else if (priority === "low") {
+    lines.push("여유 작업: 접근 방법의 트레이드오프와 대안을 간략히 포함.");
+  }
 
   return `${lines.join("\n").trimEnd()}\n`;
 }
