@@ -5,9 +5,9 @@
 
 ## 진행 요약
 
-- 현재 진행 중: **Phase 4-4 직전** (Phase 4-3 완료)
-- 완료: 18 / 22
-- 다음 단위: `Phase 4-4 — builder 통합 + 에러 핸들링 + 로딩`
+- 현재 진행 중: **Phase 5-1 직전** (Phase 4-4 완료)
+- 완료: 19 / 22
+- 다음 단위: `Phase 5-1 — 결과 마크다운 렌더 + 복사 버튼`
 
 ## 핵심 결정 (변경 시 PLAN.md 동기화)
 
@@ -79,8 +79,8 @@
   - 검증: 잘못된 입력 시 `generateViaProxy`가 한글 에러 메시지로 즉시 throw; 비정상 HTTP/JSON 파싱 시에도 구체 메시지. 빌드/lint 통과 ✓
 - [x] **4-3** `src/features/builder/buildPrompt.ts` (카테고리 + 답변 → system prompt)
   - 검증: 단위 호출 시 일관된 포맷 문자열 반환 ✓ (`buildSystemPrompt`: 역할·분류·번호 목록+`답변:` 행, choice id→label/기타는 raw, 빌드/lint 통과)
-- [ ] **4-4** builder 통합 + 에러 핸들링 + 로딩
-  - 검증: frontend/backend 두 시나리오 end-to-end 성공
+- [x] **4-4** builder 통합 + 에러 핸들링 + 로딩
+  - 검증: 마지막 스텝 완료 시 `buildSystemPrompt` + `generateViaProxy` 연동, `generating` 로딩·`error` 시 메시지+다시 시도·`done` 시 다크 결과 패널 표시. 카테고리 공통 경로 → frontend/backend 동일 플로우. 빌드/lint 통과 ✓. (`npm run dev`만 쓰면 `/api/generate`는 Vite에 없음 — `vercel dev` 또는 프로덕션에서 API 확인 권장)
 
 ## Phase 5 — 결과 + 배포
 
@@ -102,10 +102,11 @@
 - 답변 데이터 표현 정책 (Phase 3-1 결정): **choice id 또는 자유 텍스트가 같은 string 슬롯에 들어감** (옵션 B). Phase 4-3 `buildSystemPrompt`의 `displayChoiceValue`가 해당 id의 `label`이 있으면 라벨·없으면 입력값 그대로 표기.
 - ChoiceProps가 `SingleProps | MultiProps` union이라 onChange 인자 타입이 좁혀지지 않음 — StepForm에서 호출 시 콜백 매개변수 타입 명시(`(v: string)` / `(v: string[])`) 필요.
 - **Phase 3-4 결정 (UX)**: `idle → answering` 직행 (classifying status 미사용). `CategoryHeader`로 추정 표시 + 4칩 변경 + "처음으로". low confidence는 frontend 폴백 후 헤더에서 즉시 변경 가능. 카테고리 변경 시 `currentStep` 0으로 리셋(answers는 ID prefix 분리로 보존 OK).
-- `currentStep === total` 도달 시 status 전환은 미정 — Phase 4-4(builder 통합)에서 "generating"으로 트리거. 그 전까지는 StepForm 내부 placeholder가 임시 화면.
+- `currentStep === total` 도달 후 `status === answering`이면 `StepForm`의 `useEffect`가 `generating` → `generateViaProxy({ prompt: originalInput, systemInstruction: buildSystemPrompt(...) })` → `done`/`error`. Strict Mode 대비 `genSeqRef`.
 - **Phase 4-1 완료**: 프로젝트 루트 `api/generate.ts` (`@vercel/node`). 본문 `{ prompt, systemInstruction? }`, `OPTIONS` 허용, 키 없으면 503.
 - **Phase 4-2 완료**: `src/api/geminiClient.ts`의 `generateViaProxy()`가 `POST /api/generate` 호출 및 응답 파싱.
-- **Phase 4-3 완료**: `src/features/builder/buildPrompt.ts`의 `buildSystemPrompt({ category, answers })`가 `QUESTIONS_BY_CATEGORY` 순서대로 조립. 다음은 **Phase 4-4** builder 통합.
+- **Phase 4-3 완료**: `src/features/builder/buildPrompt.ts`의 `buildSystemPrompt({ category, answers })`가 `QUESTIONS_BY_CATEGORY` 순서대로 조립.
+- **Phase 4-4 완료**: `StepForm.tsx`에 생성 통합·로딩·에러 UI·결과 프리뷰(다크 패널). 다음은 **Phase 5-1** 결과 출력 고도화.
 
 ## 알려진 약점 / 추후 개선 후보
 

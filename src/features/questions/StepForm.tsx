@@ -1,7 +1,9 @@
-import { useMemo } from "react";
-import styled from "styled-components";
+import { useEffect, useMemo, useRef } from "react";
+import styled, { keyframes } from "styled-components";
+import { generateViaProxy } from "../../api/geminiClient";
 import { Choice } from "../../components/Choice";
 import { TextInput } from "../../components/TextInput";
+import { buildSystemPrompt } from "../builder/buildPrompt";
 import { usePromptStore } from "../../store/promptStore";
 import { QUESTIONS_BY_CATEGORY } from "../../templates/questions";
 import type { AnswerValue, Question } from "../../types/question";
@@ -11,30 +13,127 @@ import type { AnswerValue, Question } from "../../types/question";
 // 답변/이동은 setAnswer/goNext/goPrev에 위임. props 없음 (PLAN 결정).
 //
 // 완료 처리: 마지막 질문에서 "완료"를 누르면 currentStep === total 이 된다.
-// 이 상태에서의 status 전환(LLM 호출 등)은 Phase 3-4가 책임지고, 여기서는
-// 잠깐 placeholder만 보여준다.
+// answering → useEffect에서 Gemini 프록시 호출(generating) → done / error.
+// Strict Mode 이중 effect 대비: genSeqRef 로 마지막 요청만 상태 반영.
 export function StepForm() {
   const category = usePromptStore((s) => s.category);
   const currentStep = usePromptStore((s) => s.currentStep);
   const answers = usePromptStore((s) => s.answers);
+  const status = usePromptStore((s) => s.status);
+  const result = usePromptStore((s) => s.result);
+  const error = usePromptStore((s) => s.error);
   const goNext = usePromptStore((s) => s.goNext);
   const goPrev = usePromptStore((s) => s.goPrev);
+  const setStatus = usePromptStore((s) => s.setStatus);
+  const setResult = usePromptStore((s) => s.setResult);
+  const setError = usePromptStore((s) => s.setError);
+
+  const genSeqRef = useRef(0);
 
   const questions = useMemo(
     () => (category ? QUESTIONS_BY_CATEGORY[category] : []),
     [category],
   );
 
-  if (!category || questions.length === 0) return null;
-
   const total = questions.length;
 
+  // 스텝 완료 직후 한 번만 생성 파이프라인 진입 (status === answering 일 때만)
+  useEffect(() => {
+    if (!category || total === 0) return;
+    if (currentStep < total) return;
+    if (status !== "answering") return;
+
+    const seq = ++genSeqRef.current;
+    setStatus("generating");
+    setError(null);
+
+    const snap = usePromptStore.getState();
+    const { originalInput, category: cat, answers: ans } = snap;
+
+    void (async () => {
+      if (!cat) {
+        if (seq === genSeqRef.current) {
+          setError("카테고리 정보가 없습니다.");
+          setStatus("error");
+        }
+        return;
+      }
+      try {
+        const systemInstruction = buildSystemPrompt({
+          category: cat,
+          answers: ans,
+        });
+        const text = await generateViaProxy({
+          prompt: originalInput,
+          systemInstruction,
+        });
+        if (seq !== genSeqRef.current) return;
+        setResult(text);
+        setStatus("done");
+      } catch (e) {
+        if (seq !== genSeqRef.current) return;
+        const msg =
+          e instanceof Error
+            ? e.message
+            : "알 수 없는 오류가 발생했습니다.";
+        setError(msg);
+        setStatus("error");
+      }
+    })();
+  }, [
+    category,
+    currentStep,
+    status,
+    total,
+    setStatus,
+    setResult,
+    setError,
+  ]);
+
+  if (!category || questions.length === 0) return null;
+
   if (currentStep >= total) {
+    if (status === "generating") {
+      return (
+        <Card>
+          <LoadingRow>
+            <Spinner aria-hidden />
+            <LoadingText>
+              구조화 프롬프트를 생성하는 중입니다…
+            </LoadingText>
+          </LoadingRow>
+        </Card>
+      );
+    }
+    if (status === "error") {
+      return (
+        <Card>
+          <ErrorText role="alert">
+            {error ?? "오류가 발생했습니다."}
+          </ErrorText>
+          <RetryFooter>
+            <PrimaryButton
+              type="button"
+              onClick={() => setStatus("answering")}
+            >
+              다시 시도
+            </PrimaryButton>
+          </RetryFooter>
+        </Card>
+      );
+    }
+    if (status === "done" && result !== null && result !== "") {
+      return (
+        <Card>
+          <ResultTitle>생성된 프롬프트</ResultTitle>
+          <ResultPanel as="pre">{result}</ResultPanel>
+        </Card>
+      );
+    }
+    // answering: effect가 generating 으로 바꾸기 직전 짧은 프레임
     return (
       <Card>
-        <CompleteText>
-          모든 질문에 답변하셨습니다. 다음 단계로 넘어갈 준비가 되었습니다.
-        </CompleteText>
+        <CompleteText>생성을 준비하는 중…</CompleteText>
       </Card>
     );
   }
@@ -225,6 +324,72 @@ const SecondaryButton = styled.button`
     opacity: 0.4;
     cursor: not-allowed;
   }
+`;
+
+const spin = keyframes`
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
+const LoadingRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.space.md};
+`;
+
+const Spinner = styled.span`
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  border: 2px solid ${({ theme }) => theme.color.border};
+  border-top-color: ${({ theme }) => theme.color.primary};
+  border-radius: 50%;
+  animation: ${spin} 0.7s linear infinite;
+  flex-shrink: 0;
+`;
+
+const LoadingText = styled.p`
+  margin: 0;
+  color: ${({ theme }) => theme.color.textMuted};
+  font-size: 14px;
+`;
+
+const ErrorText = styled.p`
+  margin: 0;
+  color: ${({ theme }) => theme.color.danger};
+  font-size: 14px;
+  line-height: 1.5;
+`;
+
+const RetryFooter = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-top: ${({ theme }) => theme.space.sm};
+`;
+
+const ResultTitle = styled.h2`
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.color.text};
+`;
+
+// 테마: 라이트 메인 + 결과만 코드/다크 톤 (AGENTS.md)
+const ResultPanel = styled.pre`
+  margin: 0;
+  padding: ${({ theme }) => theme.space.lg};
+  border-radius: ${({ theme }) => theme.radius.md};
+  border: 1px solid ${({ theme }) => theme.color.codeBorder};
+  background: ${({ theme }) => theme.color.codeBg};
+  color: ${({ theme }) => theme.color.codeText};
+  font-family: ${({ theme }) => theme.font.mono};
+  font-size: 13px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: min(70vh, 520px);
+  overflow: auto;
 `;
 
 const CompleteText = styled.p`
