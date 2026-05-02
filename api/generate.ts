@@ -9,7 +9,7 @@ interface GeminiApiResponse {
   error?: { code?: number; message?: string; status?: string };
 }
 
-const GEMINI_MODEL = "gemini-3-flash-preview";
+const GEMINI_MODEL = "gemini-2.0-flash";
 const GEMINI_URL =
   `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
@@ -115,7 +115,7 @@ export default async function handler(
 
   let geminiRes: Response;
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 8000);
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
   try {
     geminiRes = await fetch(`${GEMINI_URL}?key=${encodeURIComponent(apiKey)}`, {
       method: "POST",
@@ -125,7 +125,7 @@ export default async function handler(
     });
   } catch (e) {
     if (e instanceof Error && e.name === "AbortError") {
-      res.status(504).json({ error: "Gemini 응답 시간 초과 (8초)" });
+      res.status(504).json({ error: "Gemini 응답 시간 초과 (15초)" });
       return;
     }
     const msg = e instanceof Error ? e.message : "알 수 없는 네트워크 오류";
