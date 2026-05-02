@@ -289,7 +289,7 @@ try {
   - 검증: 빌드/lint 통과 ✓. analyzing 스피너 분기, handleStart → setStatus("analyzing") 전환. 질문 화면은 V2-4 완성 후 확인 가능.
 | V2-4  | 동적 질문 렌더러 (선택지 / 자유 텍스트)            | [x]  |
 | V2-5  | Call 2 — `buildPrompt.ts` 수정 (동적 Q&A 기반)    | [x]  |
-| V2-6  | 정적 템플릿·분류기·CategoryHeader 삭제 + 정리     | [ ]  |
+| V2-6  | 정적 템플릿·분류기·CategoryHeader 삭제 + 정리     | [x]  |
 | V2-7  | 빌드/lint/E2E 검증                                | [ ]  |
 
 ---
@@ -431,6 +431,8 @@ buildSystemPrompt({ originalInput, dynamicQuestions, answers })
 - `App.tsx`에서 `CategoryHeader`, `classifyIntent` import 제거
 
 **검증**: `npm run build` + `npm run lint` 0 에러.
+
+- 검증: 빌드/lint 통과 ✓. 삭제 6개 파일/디렉토리, 수정 3개 파일(main.tsx, promptStore.ts, App.tsx).
 
 ---
 

@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import type { Category } from "../types/category";
 import type { AnswerValue, DynamicQuestion } from "../types/question";
 
 // 워크플로우 진행 상태
@@ -14,7 +13,6 @@ export type Status =
 
 interface PromptState {
   originalInput: string;
-  category: Category | null;
   dynamicQuestions: DynamicQuestion[];
   currentStep: number;
   answers: Record<string, AnswerValue>;
@@ -25,7 +23,6 @@ interface PromptState {
 
 interface PromptActions {
   setOriginalInput: (v: string) => void;
-  setCategory: (c: Category) => void;
   setDynamicQuestions: (questions: DynamicQuestion[]) => void;
   setAnswer: (questionId: string, value: AnswerValue) => void;
   goNext: () => void;
@@ -38,7 +35,6 @@ interface PromptActions {
 
 const initialState: PromptState = {
   originalInput: "",
-  category: null,
   dynamicQuestions: [],
   currentStep: 0,
   answers: {},
@@ -53,11 +49,6 @@ export const usePromptStore = create<PromptState & PromptActions>()(
       ...initialState,
       setOriginalInput: (v) =>
         set({ originalInput: v }, false, "setOriginalInput"),
-      setCategory: (c) =>
-        // 카테고리가 바뀌면 질문 셋이 달라지므로 진행 단계는 처음으로 되돌린다.
-        // 답변(answers)은 유지 — ID prefix가 카테고리별로 달라 충돌이 없고,
-        // 공통 질문(co_*)은 재사용되므로 사용자 입력을 보존한다.
-        set({ category: c, currentStep: 0 }, false, "setCategory"),
       setDynamicQuestions: (questions) =>
         set(
           { dynamicQuestions: questions, currentStep: 0 },

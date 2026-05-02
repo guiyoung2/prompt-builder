@@ -1,6 +1,5 @@
 import { useState } from "react";
 import styled, { keyframes } from "styled-components";
-import { CategoryHeader } from "./features/intent/CategoryHeader";
 import { StepForm } from "./features/questions/StepForm";
 import { useQuestionGeneration } from "./features/questions/useQuestionGeneration";
 import { usePromptStore } from "./store/promptStore";
@@ -166,11 +165,11 @@ function App() {
 // 진행 상태(status)에 따라 화면을 분기.
 // - idle: 입력 카드
 // - analyzing: Call 1 질문 생성 중 스피너
-// - error(질문 생성 실패): 에러 카드 — category가 없으면 analyzing 단계 에러
-// - answering 이후: CategoryHeader + StepForm
+// - error(질문 생성 실패): 에러 카드 — dynamicQuestions가 비면 analyzing 단계 에러
+// - answering 이후: StepForm
 function Workflow() {
   const status = usePromptStore((s) => s.status);
-  const category = usePromptStore((s) => s.category);
+  const dynamicQuestions = usePromptStore((s) => s.dynamicQuestions);
   const error = usePromptStore((s) => s.error);
   const setStatus = usePromptStore((s) => s.setStatus);
 
@@ -189,7 +188,7 @@ function Workflow() {
     );
   }
 
-  if (status === "error" && !category) {
+  if (status === "error" && dynamicQuestions.length === 0) {
     return (
       <InputCard>
         <ErrorText role="alert">{error ?? "오류가 발생했습니다."}</ErrorText>
@@ -202,12 +201,7 @@ function Workflow() {
     );
   }
 
-  return (
-    <>
-      <CategoryHeader />
-      <StepForm />
-    </>
-  );
+  return <StepForm />;
 }
 
 // 사용자 입력 → store에 저장 후 "analyzing"으로 전환.
