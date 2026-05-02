@@ -5,9 +5,9 @@
 
 ## 진행 요약
 
-- 현재 진행 중: **Phase 5-1 직전** (Phase 4-4 완료)
-- 완료: 19 / 22
-- 다음 단위: `Phase 5-1 — 결과 마크다운 렌더 + 복사 버튼`
+- 현재 진행 중: **Phase 5-2 직전** (Phase 5-1 완료)
+- 완료: 20 / 22
+- 다음 단위: `Phase 5-2 — README 업데이트`
 
 ## 핵심 결정 (변경 시 PLAN.md 동기화)
 
@@ -84,8 +84,8 @@
 
 ## Phase 5 — 결과 + 배포
 
-- [ ] **5-1** `src/features/output` (결과 마크다운 렌더, 복사 버튼)
-  - 검증: 복사 버튼 클릭 시 클립보드 동기화
+- [x] **5-1** `src/features/output` (결과 마크다운 렌더, 복사 버튼)
+  - 검증: `PromptResult`에서 `navigator.clipboard.writeText(markdown)` 복사 플로우 + 성공/실패 피드백. 다크 패널 내 `react-markdown` 렌더. 빌드/lint 통과 ✓
 - [ ] **5-2** README 업데이트 (Vercel 환경변수, 무료 티어 데이터 학습 안내)
   - 검증: README 따라 신규 환경에서 셋업 가능
 - [ ] **5-3** Vercel 배포 설정 검증 (vercel.json, env, 빌드 명령)
@@ -106,7 +106,8 @@
 - **Phase 4-1 완료**: 프로젝트 루트 `api/generate.ts` (`@vercel/node`). 본문 `{ prompt, systemInstruction? }`, `OPTIONS` 허용, 키 없으면 503.
 - **Phase 4-2 완료**: `src/api/geminiClient.ts`의 `generateViaProxy()`가 `POST /api/generate` 호출 및 응답 파싱.
 - **Phase 4-3 완료**: `src/features/builder/buildPrompt.ts`의 `buildSystemPrompt({ category, answers })`가 `QUESTIONS_BY_CATEGORY` 순서대로 조립.
-- **Phase 4-4 완료**: `StepForm.tsx`에 생성 통합·로딩·에러 UI·결과 프리뷰(다크 패널). 다음은 **Phase 5-1** 결과 출력 고도화.
+- **Phase 4-4 완료**: `StepForm.tsx`에 생성 통합·로딩·에러 UI. 완료 화면 마크다운·복사는 **5-1** `PromptResult`로 이관.
+- **Phase 5-1 완료**: `src/features/output/PromptResult.tsx` — 마크다운 렌더(`react-markdown`) + 복사(원문 마크다운 문자열). `StepForm` `done` 분기에서 사용. 다음은 **Phase 5-2** README.
 
 ## 알려진 약점 / 추후 개선 후보
 

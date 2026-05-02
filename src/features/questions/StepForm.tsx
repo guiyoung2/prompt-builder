@@ -4,6 +4,7 @@ import { generateViaProxy } from "../../api/geminiClient";
 import { Choice } from "../../components/Choice";
 import { TextInput } from "../../components/TextInput";
 import { buildSystemPrompt } from "../builder/buildPrompt";
+import { PromptResult } from "../output/PromptResult";
 import { usePromptStore } from "../../store/promptStore";
 import { QUESTIONS_BY_CATEGORY } from "../../templates/questions";
 import type { AnswerValue, Question } from "../../types/question";
@@ -125,8 +126,7 @@ export function StepForm() {
     if (status === "done" && result !== null && result !== "") {
       return (
         <Card>
-          <ResultTitle>생성된 프롬프트</ResultTitle>
-          <ResultPanel as="pre">{result}</ResultPanel>
+          <PromptResult markdown={result} />
         </Card>
       );
     }
@@ -366,30 +366,6 @@ const RetryFooter = styled.div`
   display: flex;
   justify-content: flex-end;
   margin-top: ${({ theme }) => theme.space.sm};
-`;
-
-const ResultTitle = styled.h2`
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.color.text};
-`;
-
-// 테마: 라이트 메인 + 결과만 코드/다크 톤 (AGENTS.md)
-const ResultPanel = styled.pre`
-  margin: 0;
-  padding: ${({ theme }) => theme.space.lg};
-  border-radius: ${({ theme }) => theme.radius.md};
-  border: 1px solid ${({ theme }) => theme.color.codeBorder};
-  background: ${({ theme }) => theme.color.codeBg};
-  color: ${({ theme }) => theme.color.codeText};
-  font-family: ${({ theme }) => theme.font.mono};
-  font-size: 13px;
-  line-height: 1.55;
-  white-space: pre-wrap;
-  word-break: break-word;
-  max-height: min(70vh, 520px);
-  overflow: auto;
 `;
 
 const CompleteText = styled.p`
