@@ -46,3 +46,17 @@ export type Question =
   | SingleChoiceQuestion
   | MultiChoiceQuestion
   | TextQuestion;
+
+// V2 동적 질문 타입 (Gemini Call 1이 생성)
+export interface DynamicChoice {
+  id: string;
+  label: string;
+}
+
+export interface DynamicQuestion {
+  id: string;
+  text: string;
+  type: "single" | "multi" | "text";
+  choices?: DynamicChoice[];
+  required?: boolean;
+}

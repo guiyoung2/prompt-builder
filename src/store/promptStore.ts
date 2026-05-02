@@ -1,11 +1,12 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import type { Category } from "../types/category";
-import type { AnswerValue } from "../types/question";
+import type { AnswerValue, DynamicQuestion } from "../types/question";
 
 // 워크플로우 진행 상태
 export type Status =
   | "idle" // 초기 입력 대기
+  | "analyzing" // Call 1 질문 생성 중
   | "answering" // 스텝 폼 진행 중
   | "generating" // Gemini 호출 중
   | "done"
@@ -14,6 +15,7 @@ export type Status =
 interface PromptState {
   originalInput: string;
   category: Category | null;
+  dynamicQuestions: DynamicQuestion[];
   currentStep: number;
   answers: Record<string, AnswerValue>;
   status: Status;
@@ -24,6 +26,7 @@ interface PromptState {
 interface PromptActions {
   setOriginalInput: (v: string) => void;
   setCategory: (c: Category) => void;
+  setDynamicQuestions: (questions: DynamicQuestion[]) => void;
   setAnswer: (questionId: string, value: AnswerValue) => void;
   goNext: () => void;
   goPrev: () => void;
@@ -36,6 +39,7 @@ interface PromptActions {
 const initialState: PromptState = {
   originalInput: "",
   category: null,
+  dynamicQuestions: [],
   currentStep: 0,
   answers: {},
   status: "idle",
@@ -54,6 +58,12 @@ export const usePromptStore = create<PromptState & PromptActions>()(
         // 답변(answers)은 유지 — ID prefix가 카테고리별로 달라 충돌이 없고,
         // 공통 질문(co_*)은 재사용되므로 사용자 입력을 보존한다.
         set({ category: c, currentStep: 0 }, false, "setCategory"),
+      setDynamicQuestions: (questions) =>
+        set(
+          { dynamicQuestions: questions, currentStep: 0 },
+          false,
+          "setDynamicQuestions",
+        ),
       setAnswer: (questionId, value) =>
         set(
           (s) => ({ answers: { ...s.answers, [questionId]: value } }),

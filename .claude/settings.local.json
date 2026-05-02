@@ -12,5 +12,6 @@
       "Bash(git commit --amend -m ' *)",
       "Bash(git push *)"
     ]
-  }
+  },
+  "outputStyle": "Front Advice"
 }
