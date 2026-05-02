@@ -285,7 +285,8 @@ try {
 |-------|---------------------------------------------------|------|
 | V2-1  | 타입 정의 — `DynamicQuestion` + store 업데이트     | [x]  |
 | V2-2  | Call 1 로직 — 질문 생성 시스템 프롬프트 + JSON 파싱 | [x]  |
-| V2-3  | 입력 → `analyzing` 로딩 → 동적 질문 표시 흐름     | [ ]  |
+| V2-3  | 입력 → `analyzing` 로딩 → 동적 질문 표시 흐름     | [x]  |
+  - 검증: 빌드/lint 통과 ✓. analyzing 스피너 분기, handleStart → setStatus("analyzing") 전환. 질문 화면은 V2-4 완성 후 확인 가능.
 | V2-4  | 동적 질문 렌더러 (선택지 / 자유 텍스트)            | [ ]  |
 | V2-5  | Call 2 — `buildPrompt.ts` 수정 (동적 Q&A 기반)    | [ ]  |
 | V2-6  | 정적 템플릿·분류기·CategoryHeader 삭제 + 정리     | [ ]  |

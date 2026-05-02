@@ -1,8 +1,8 @@
 import { useState } from "react";
-import styled from "styled-components";
-import { classifyIntent } from "./features/intent/classifyIntent";
+import styled, { keyframes } from "styled-components";
 import { CategoryHeader } from "./features/intent/CategoryHeader";
 import { StepForm } from "./features/questions/StepForm";
+import { useQuestionGeneration } from "./features/questions/useQuestionGeneration";
 import { usePromptStore } from "./store/promptStore";
 
 const Page = styled.div`
@@ -82,6 +82,46 @@ const Textarea = styled.textarea`
   }
 `;
 
+const spin = keyframes`
+  to { transform: rotate(360deg); }
+`;
+
+const LoadingRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.space.md};
+`;
+
+const Spinner = styled.span`
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  border: 2px solid ${({ theme }) => theme.color.border};
+  border-top-color: ${({ theme }) => theme.color.primary};
+  border-radius: 50%;
+  animation: ${spin} 0.7s linear infinite;
+  flex-shrink: 0;
+`;
+
+const LoadingText = styled.p`
+  margin: 0;
+  color: ${({ theme }) => theme.color.textMuted};
+  font-size: 14px;
+`;
+
+const ErrorText = styled.p`
+  margin: 0;
+  color: ${({ theme }) => theme.color.danger};
+  font-size: 14px;
+  line-height: 1.5;
+`;
+
+const RetryFooter = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-top: ${({ theme }) => theme.space.sm};
+`;
+
 const SubmitButton = styled.button`
   margin-top: ${({ theme }) => theme.space.lg};
   padding: ${({ theme }) => theme.space.md} ${({ theme }) => theme.space.xl};
@@ -124,14 +164,42 @@ function App() {
 }
 
 // 진행 상태(status)에 따라 화면을 분기.
-// - idle: 입력 카드 → "시작하기"로 분류 후 answering 진입
+// - idle: 입력 카드
+// - analyzing: Call 1 질문 생성 중 스피너
+// - error(질문 생성 실패): 에러 카드 — category가 없으면 analyzing 단계 에러
 // - answering 이후: CategoryHeader + StepForm
-// classifying 단계는 두지 않는다 (분류가 동기라 별도 확인 화면이 마찰만 됨).
 function Workflow() {
   const status = usePromptStore((s) => s.status);
+  const category = usePromptStore((s) => s.category);
+  const error = usePromptStore((s) => s.error);
+  const setStatus = usePromptStore((s) => s.setStatus);
 
-  if (status === "idle") {
-    return <IntentInput />;
+  useQuestionGeneration();
+
+  if (status === "idle") return <IntentInput />;
+
+  if (status === "analyzing") {
+    return (
+      <InputCard>
+        <LoadingRow>
+          <Spinner aria-hidden />
+          <LoadingText>질문을 구성하는 중...</LoadingText>
+        </LoadingRow>
+      </InputCard>
+    );
+  }
+
+  if (status === "error" && !category) {
+    return (
+      <InputCard>
+        <ErrorText role="alert">{error ?? "오류가 발생했습니다."}</ErrorText>
+        <RetryFooter>
+          <SubmitButton type="button" onClick={() => setStatus("analyzing")}>
+            다시 시도
+          </SubmitButton>
+        </RetryFooter>
+      </InputCard>
+    );
   }
 
   return (
@@ -142,13 +210,11 @@ function Workflow() {
   );
 }
 
-// 사용자 입력 → classifyIntent → store 액션 호출로 답변 화면 진입.
-// 입력 자체는 전송 직전까지만 의미가 있으므로 로컬 useState로 관리하고,
-// 시작 시점에만 store에 originalInput을 기록한다.
+// 사용자 입력 → store에 저장 후 "analyzing"으로 전환.
+// Call 1(질문 생성)은 useQuestionGeneration 훅이 analyzing 감지 시 처리한다.
 function IntentInput() {
   const [input, setInput] = useState("");
   const setOriginalInput = usePromptStore((s) => s.setOriginalInput);
-  const setCategory = usePromptStore((s) => s.setCategory);
   const setStatus = usePromptStore((s) => s.setStatus);
 
   const trimmed = input.trim();
@@ -156,10 +222,8 @@ function IntentInput() {
 
   const handleStart = () => {
     if (!canSubmit) return;
-    const result = classifyIntent(trimmed);
     setOriginalInput(trimmed);
-    setCategory(result.category);
-    setStatus("answering");
+    setStatus("analyzing");
   };
 
   return (
