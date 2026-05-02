@@ -70,7 +70,10 @@ export function StepForm() {
     if (status === "done" && result !== null && result !== "") {
       return (
         <Card>
-          <PromptResult markdown={result} />
+          <PromptResult
+            markdown={result}
+            onRegenerate={() => setStatus("answering")}
+          />
         </Card>
       );
     }
