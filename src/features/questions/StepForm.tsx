@@ -124,7 +124,7 @@ function QuestionInput({ question }: { question: DynamicQuestion }) {
   if (question.type === "single") {
     return (
       <SingleChoice
-        question={{ id: question.id, prompt: question.text, type: "single", choices }}
+        question={{ id: question.id, prompt: question.text, type: "single", choices, allowCustom: question.allowCustom }}
         value={typeof answer === "string" ? answer : ""}
         onChange={(v) => setAnswer(question.id, v)}
       />
@@ -133,7 +133,7 @@ function QuestionInput({ question }: { question: DynamicQuestion }) {
   if (question.type === "multi") {
     return (
       <MultiChoice
-        question={{ id: question.id, prompt: question.text, type: "multi", choices }}
+        question={{ id: question.id, prompt: question.text, type: "multi", choices, allowCustom: question.allowCustom }}
         value={Array.isArray(answer) ? answer : []}
         onChange={(v) => setAnswer(question.id, v)}
       />

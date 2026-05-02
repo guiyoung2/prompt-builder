@@ -59,4 +59,5 @@ export interface DynamicQuestion {
   type: "single" | "multi" | "text";
   choices?: DynamicChoice[];
   required?: boolean;
+  allowCustom?: boolean; // 기타 직접 입력 허용
 }
