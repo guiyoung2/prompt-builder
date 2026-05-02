@@ -55,3 +55,9 @@ npm run dev      # 개발 서버
 npm run build    # 타입체크 + 프로덕션 빌드
 npm run lint     # ESLint
 ```
+
+## 배포 URL (에이전트 검증)
+
+- **프로덕션 앱**: https://prompt-builder-liard.vercel.app/
+- 로컬에 `vercel dev`가 없거나 에이전트 환경에서 로컬 API를 쓸 수 없을 때, **전체 플로우·`/api/generate` 포함 확인**은 위 오리진 기준으로 한다 (예: 브라우저 MCP로 앱 동작, `POST …/api/generate`로 프록시 스모크).
+- 클라이언트의 `fetch("/api/generate")`는 프로덕션에서 동일 호스트이므로 추가 베이스 URL 설정 없이 동작한다.
