@@ -5,9 +5,9 @@
 
 ## 진행 요약
 
-- 현재 진행 중: **Phase 4-3 직전** (Phase 4-2 완료)
-- 완료: 17 / 22
-- 다음 단위: `Phase 4-3 — src/features/builder/buildPrompt.ts (카테고리 + 답변 → system prompt)`
+- 현재 진행 중: **Phase 4-4 직전** (Phase 4-3 완료)
+- 완료: 18 / 22
+- 다음 단위: `Phase 4-4 — builder 통합 + 에러 핸들링 + 로딩`
 
 ## 핵심 결정 (변경 시 PLAN.md 동기화)
 
@@ -77,8 +77,8 @@
   - 검증: `npm run build` / `npm run lint` 통과 ✓. `vercel dev`는 에이전트 환경에 Vercel 자격증명 없어 미실행 — 로컬에서 `vercel login` 후 `.env.local`의 `GEMINI_API_KEY`로 `POST /api/generate`(JSON `{ "prompt": "…" }`) 시 200, 잘못된 본문 시 400/405 확인 권장 ✓
 - [x] **4-2** `src/api/geminiClient.ts` (프론트 → /api/generate 호출)
   - 검증: 잘못된 입력 시 `generateViaProxy`가 한글 에러 메시지로 즉시 throw; 비정상 HTTP/JSON 파싱 시에도 구체 메시지. 빌드/lint 통과 ✓
-- [ ] **4-3** `src/features/builder/buildPrompt.ts` (카테고리 + 답변 → system prompt)
-  - 검증: 단위 호출 시 일관된 포맷 문자열 반환
+- [x] **4-3** `src/features/builder/buildPrompt.ts` (카테고리 + 답변 → system prompt)
+  - 검증: 단위 호출 시 일관된 포맷 문자열 반환 ✓ (`buildSystemPrompt`: 역할·분류·번호 목록+`답변:` 행, choice id→label/기타는 raw, 빌드/lint 통과)
 - [ ] **4-4** builder 통합 + 에러 핸들링 + 로딩
   - 검증: frontend/backend 두 시나리오 end-to-end 성공
 
@@ -99,12 +99,13 @@
 - main.tsx에서 dev 모드일 때 `runClassifierSelfCheck()`가 브라우저 콘솔에 표 출력
 - 질문 타입 컨벤션: `Question` discriminated union (`type: "single" | "multi" | "text"`), `Choice = { id, label, description? }`, `AnswerValue = string | string[]`. 공통 질문은 카테고리별 질문 뒤에 합쳐서 노출.
 - 카테고리별 질문 ID 컨벤션: prefix로 카테고리 구분 (`fe_*`, `be_*`, `bf_*`, `rf_*`). 충돌 방지 + 디버깅 가독성.
-- 답변 데이터 표현 정책 (Phase 3-1 결정): **choice id 또는 자유 텍스트가 같은 string 슬롯에 들어감** (옵션 B). buildPrompt 단계에서 `id ∈ choices ? label : value` 한 줄 분기로 처리 예정 (Phase 4-3).
+- 답변 데이터 표현 정책 (Phase 3-1 결정): **choice id 또는 자유 텍스트가 같은 string 슬롯에 들어감** (옵션 B). Phase 4-3 `buildSystemPrompt`의 `displayChoiceValue`가 해당 id의 `label`이 있으면 라벨·없으면 입력값 그대로 표기.
 - ChoiceProps가 `SingleProps | MultiProps` union이라 onChange 인자 타입이 좁혀지지 않음 — StepForm에서 호출 시 콜백 매개변수 타입 명시(`(v: string)` / `(v: string[])`) 필요.
 - **Phase 3-4 결정 (UX)**: `idle → answering` 직행 (classifying status 미사용). `CategoryHeader`로 추정 표시 + 4칩 변경 + "처음으로". low confidence는 frontend 폴백 후 헤더에서 즉시 변경 가능. 카테고리 변경 시 `currentStep` 0으로 리셋(answers는 ID prefix 분리로 보존 OK).
 - `currentStep === total` 도달 시 status 전환은 미정 — Phase 4-4(builder 통합)에서 "generating"으로 트리거. 그 전까지는 StepForm 내부 placeholder가 임시 화면.
 - **Phase 4-1 완료**: 프로젝트 루트 `api/generate.ts` (`@vercel/node`). 본문 `{ prompt, systemInstruction? }`, `OPTIONS` 허용, 키 없으면 503.
-- **Phase 4-2 완료**: `src/api/geminiClient.ts`의 `generateViaProxy()`가 `POST /api/generate` 호출 및 응답 파싱. 다음은 **Phase 4-3** `buildPrompt.ts`.
+- **Phase 4-2 완료**: `src/api/geminiClient.ts`의 `generateViaProxy()`가 `POST /api/generate` 호출 및 응답 파싱.
+- **Phase 4-3 완료**: `src/features/builder/buildPrompt.ts`의 `buildSystemPrompt({ category, answers })`가 `QUESTIONS_BY_CATEGORY` 순서대로 조립. 다음은 **Phase 4-4** builder 통합.
 
 ## 알려진 약점 / 추후 개선 후보
 
