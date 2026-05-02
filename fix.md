@@ -288,7 +288,7 @@ try {
 | V2-3  | 입력 → `analyzing` 로딩 → 동적 질문 표시 흐름     | [x]  |
   - 검증: 빌드/lint 통과 ✓. analyzing 스피너 분기, handleStart → setStatus("analyzing") 전환. 질문 화면은 V2-4 완성 후 확인 가능.
 | V2-4  | 동적 질문 렌더러 (선택지 / 자유 텍스트)            | [x]  |
-| V2-5  | Call 2 — `buildPrompt.ts` 수정 (동적 Q&A 기반)    | [ ]  |
+| V2-5  | Call 2 — `buildPrompt.ts` 수정 (동적 Q&A 기반)    | [x]  |
 | V2-6  | 정적 템플릿·분류기·CategoryHeader 삭제 + 정리     | [ ]  |
 | V2-7  | 빌드/lint/E2E 검증                                | [ ]  |
 
@@ -411,6 +411,8 @@ buildSystemPrompt({ originalInput, dynamicQuestions, answers })
 6섹션 출력 규칙(`ROLE_INTRO`)은 변경 없음.
 
 **검증**: `npm run build` 통과. 생성 결과가 6섹션 구조를 유지하는지 확인.
+
+- 검증: 빌드/lint 통과 ✓. `category` 섹션 제거, `dynamicQuestions` 순회로 교체. `usePromptGeneration` 내 category 의존도 제거.
 
 ---
 

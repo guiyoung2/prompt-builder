@@ -28,19 +28,12 @@ export function usePromptGeneration() {
     setError(null);
 
     const snap = usePromptStore.getState();
-    const { originalInput, category: cat, answers: ans } = snap;
+    const { originalInput, dynamicQuestions: dq, answers: ans } = snap;
 
     void (async () => {
-      if (!cat) {
-        if (seq === genSeqRef.current) {
-          setError("카테고리 정보가 없습니다.");
-          setStatus("error");
-        }
-        return;
-      }
       try {
         const systemInstruction = buildSystemPrompt({
-          category: cat,
+          dynamicQuestions: dq,
           answers: ans,
         });
         const text = await generateViaProxy({
