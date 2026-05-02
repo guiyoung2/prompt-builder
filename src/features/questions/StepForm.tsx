@@ -1,12 +1,10 @@
-import { useMemo } from "react";
 import styled, { keyframes } from "styled-components";
 import { SingleChoice, MultiChoice } from "../../components/Choice";
 import { TextInput } from "../../components/TextInput";
 import { PromptResult } from "../output/PromptResult";
 import { usePromptStore } from "../../store/promptStore";
-import { QUESTIONS_BY_CATEGORY } from "../../templates/questions";
 import { usePromptGeneration } from "./usePromptGeneration";
-import type { AnswerValue, Question } from "../../types/question";
+import type { AnswerValue, DynamicQuestion } from "../../types/question";
 
 // 카테고리별 + 공통 질문을 한 화면씩 보여주는 스텝 폼.
 // store가 single source of truth — category/currentStep/answers를 그대로 읽고,
@@ -16,7 +14,7 @@ import type { AnswerValue, Question } from "../../types/question";
 // answering → useEffect에서 Gemini 프록시 호출(generating) → done / error.
 // Strict Mode 이중 effect 대비: genSeqRef 로 마지막 요청만 상태 반영.
 export function StepForm() {
-  const category = usePromptStore((s) => s.category);
+  const dynamicQuestions = usePromptStore((s) => s.dynamicQuestions);
   const currentStep = usePromptStore((s) => s.currentStep);
   const answers = usePromptStore((s) => s.answers);
   const status = usePromptStore((s) => s.status);
@@ -28,14 +26,9 @@ export function StepForm() {
 
   usePromptGeneration();
 
-  const questions = useMemo(
-    () => (category ? QUESTIONS_BY_CATEGORY[category] : []),
-    [category],
-  );
+  const total = dynamicQuestions.length;
 
-  const total = questions.length;
-
-  if (!category || questions.length === 0) return null;
+  if (dynamicQuestions.length === 0) return null;
 
   if (currentStep >= total) {
     if (status === "generating") {
@@ -85,7 +78,7 @@ export function StepForm() {
     );
   }
 
-  const question = questions[currentStep];
+  const question = dynamicQuestions[currentStep];
   const isFirst = currentStep === 0;
   const isLast = currentStep === total - 1;
   const required = question.required ?? true;
@@ -104,8 +97,7 @@ export function StepForm() {
       </ProgressRow>
 
       <HeaderBlock>
-        <Prompt>{question.prompt}</Prompt>
-        {question.helper ? <Helper>{question.helper}</Helper> : null}
+        <Prompt>{question.text}</Prompt>
       </HeaderBlock>
 
       <QuestionInput question={question} />
@@ -122,16 +114,17 @@ export function StepForm() {
   );
 }
 
-// 질문 타입별로 입력 컴포넌트를 분기. store에서 직접 답변/세터를 읽어
-// StepForm 본체를 얇게 유지한다.
-function QuestionInput({ question }: { question: Question }) {
+// 질문 타입별로 입력 컴포넌트를 분기. DynamicQuestion을 각 컴포넌트 props 형태로 어댑팅.
+function QuestionInput({ question }: { question: DynamicQuestion }) {
   const answer = usePromptStore((s) => s.answers[question.id]);
   const setAnswer = usePromptStore((s) => s.setAnswer);
+  // DynamicChoice는 Choice의 subset (description 없지만 optional) — 구조 호환
+  const choices = question.choices ?? [];
 
   if (question.type === "single") {
     return (
       <SingleChoice
-        question={question}
+        question={{ id: question.id, prompt: question.text, type: "single", choices }}
         value={typeof answer === "string" ? answer : ""}
         onChange={(v) => setAnswer(question.id, v)}
       />
@@ -140,7 +133,7 @@ function QuestionInput({ question }: { question: Question }) {
   if (question.type === "multi") {
     return (
       <MultiChoice
-        question={question}
+        question={{ id: question.id, prompt: question.text, type: "multi", choices }}
         value={Array.isArray(answer) ? answer : []}
         onChange={(v) => setAnswer(question.id, v)}
       />
@@ -148,7 +141,7 @@ function QuestionInput({ question }: { question: Question }) {
   }
   return (
     <TextInput
-      question={question}
+      question={{ id: question.id, prompt: question.text, type: "text" }}
       value={typeof answer === "string" ? answer : ""}
       onChange={(v) => setAnswer(question.id, v)}
     />
@@ -157,7 +150,7 @@ function QuestionInput({ question }: { question: Question }) {
 
 // 답변이 채워졌는지 검사 (required 질문의 "다음" 활성화 판정용)
 function hasAnswer(
-  question: Question,
+  question: DynamicQuestion,
   answer: AnswerValue | undefined,
 ): boolean {
   if (question.type === "multi") {
@@ -218,11 +211,6 @@ const Prompt = styled.h2`
   letter-spacing: -0.01em;
 `;
 
-const Helper = styled.p`
-  margin: 0;
-  color: ${({ theme }) => theme.color.textMuted};
-  font-size: 13px;
-`;
 
 const Footer = styled.div`
   display: flex;

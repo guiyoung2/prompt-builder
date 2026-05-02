@@ -2,13 +2,12 @@ import { useEffect, useRef } from "react";
 import { generateViaProxy } from "../../api/geminiClient";
 import { buildSystemPrompt } from "../builder/buildPrompt";
 import { usePromptStore } from "../../store/promptStore";
-import { QUESTIONS_BY_CATEGORY } from "../../templates/questions";
 
 // 마지막 스텝 완료 감지 → Gemini 호출 → done / error 상태 전환.
 // 부수 효과만 있는 훅 — 반환값 없음.
 // genSeqRef: React 18 Strict Mode 이중 effect 호출 방지용.
 export function usePromptGeneration() {
-  const category = usePromptStore((s) => s.category);
+  const dynamicQuestions = usePromptStore((s) => s.dynamicQuestions);
   const currentStep = usePromptStore((s) => s.currentStep);
   const status = usePromptStore((s) => s.status);
   const setStatus = usePromptStore((s) => s.setStatus);
@@ -17,10 +16,10 @@ export function usePromptGeneration() {
 
   const genSeqRef = useRef(0);
 
-  const total = category ? QUESTIONS_BY_CATEGORY[category].length : 0;
+  const total = dynamicQuestions.length;
 
   useEffect(() => {
-    if (!category || total === 0) return;
+    if (total === 0) return;
     if (currentStep < total) return;
     if (status !== "answering") return;
 
@@ -59,5 +58,5 @@ export function usePromptGeneration() {
         setStatus("error");
       }
     })();
-  }, [category, currentStep, status, total, setStatus, setResult, setError]);
+  }, [currentStep, status, total, setStatus, setResult, setError]);
 }

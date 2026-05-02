@@ -287,7 +287,7 @@ try {
 | V2-2  | Call 1 로직 — 질문 생성 시스템 프롬프트 + JSON 파싱 | [x]  |
 | V2-3  | 입력 → `analyzing` 로딩 → 동적 질문 표시 흐름     | [x]  |
   - 검증: 빌드/lint 통과 ✓. analyzing 스피너 분기, handleStart → setStatus("analyzing") 전환. 질문 화면은 V2-4 완성 후 확인 가능.
-| V2-4  | 동적 질문 렌더러 (선택지 / 자유 텍스트)            | [ ]  |
+| V2-4  | 동적 질문 렌더러 (선택지 / 자유 텍스트)            | [x]  |
 | V2-5  | Call 2 — `buildPrompt.ts` 수정 (동적 Q&A 기반)    | [ ]  |
 | V2-6  | 정적 템플릿·분류기·CategoryHeader 삭제 + 정리     | [ ]  |
 | V2-7  | 빌드/lint/E2E 검증                                | [ ]  |
@@ -388,6 +388,8 @@ setOriginalInput(input) → setStatus("analyzing")
 `CategoryHeader` 제거. 진행률 표시(`1 / N`)는 `dynamicQuestions.length` 기준.
 
 **검증**: 동적으로 생성된 3~5개 질문이 스텝 형태로 렌더되고, 선택/입력 후 store에 저장되는지 확인.
+
+- 검증: 빌드/lint 통과 ✓. DynamicQuestion.text → 헤더 렌더, 어댑터로 Choice/TextInput 재사용. usePromptGeneration도 dynamicQuestions.length 기반으로 변경.
 
 ---
 
