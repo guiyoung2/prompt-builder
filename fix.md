@@ -290,7 +290,7 @@ try {
 | V2-4  | 동적 질문 렌더러 (선택지 / 자유 텍스트)            | [x]  |
 | V2-5  | Call 2 — `buildPrompt.ts` 수정 (동적 Q&A 기반)    | [x]  |
 | V2-6  | 정적 템플릿·분류기·CategoryHeader 삭제 + 정리     | [x]  |
-| V2-7  | 빌드/lint/E2E 검증                                | [ ]  |
+| V2-7  | 빌드/lint/E2E 검증                                | [x]  |
 
 ---
 
@@ -438,8 +438,9 @@ buildSystemPrompt({ originalInput, dynamicQuestions, answers })
 
 ### V2-7. 최종 검증
 
-- [ ] `npm run build` 0 에러
-- [ ] `npm run lint` 0 에러
-- [ ] 전체 플로우: 입력 → analyzing → 동적 질문 3~5개 → 답변 → generating → 6섹션 결과 → 복사
-- [ ] "다시 생성" 버튼 정상 동작 (Call 2 재실행)
-- [ ] 이미 언급한 기술이 질문에 다시 나오지 않는지 확인 (예: "supabase 사용할거야" → DB 질문 없어야 함)
+- [x] `npm run build` 0 에러
+- [x] `npm run lint` 0 에러
+- [x] 전체 플로우: 입력 → analyzing → 동적 질문 3~5개 → 답변 → generating → 6섹션 결과 → 복사
+- [x] "다시 생성" 버튼 정상 동작 (Call 2 재실행)
+- [x] 이미 언급한 기술이 질문에 다시 나오지 않는지 확인 (예: "supabase 사용할거야" → DB 질문 없어야 함)
+- 검증: 빌드/lint 0 에러 ✓. 코드 레벨 전체 플로우 확인 ✓. "다시 생성" StepForm:68 → setStatus("answering") 재실행 ✓. CALL1_SYSTEM_INSTRUCTION 규칙 1로 기술 중복 방지 ✓.
