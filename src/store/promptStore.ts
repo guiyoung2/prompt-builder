@@ -6,7 +6,6 @@ import type { AnswerValue } from "../types/question";
 // 워크플로우 진행 상태
 export type Status =
   | "idle" // 초기 입력 대기
-  | "classifying" // 의도 분류 중 (현재는 동기지만 비동기 전환 여지)
   | "answering" // 스텝 폼 진행 중
   | "generating" // Gemini 호출 중
   | "done"

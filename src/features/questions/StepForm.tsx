@@ -1,12 +1,11 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo } from "react";
 import styled, { keyframes } from "styled-components";
-import { generateViaProxy } from "../../api/geminiClient";
-import { Choice } from "../../components/Choice";
+import { SingleChoice, MultiChoice } from "../../components/Choice";
 import { TextInput } from "../../components/TextInput";
-import { buildSystemPrompt } from "../builder/buildPrompt";
 import { PromptResult } from "../output/PromptResult";
 import { usePromptStore } from "../../store/promptStore";
 import { QUESTIONS_BY_CATEGORY } from "../../templates/questions";
+import { usePromptGeneration } from "./usePromptGeneration";
 import type { AnswerValue, Question } from "../../types/question";
 
 // 카테고리별 + 공통 질문을 한 화면씩 보여주는 스텝 폼.
@@ -26,10 +25,8 @@ export function StepForm() {
   const goNext = usePromptStore((s) => s.goNext);
   const goPrev = usePromptStore((s) => s.goPrev);
   const setStatus = usePromptStore((s) => s.setStatus);
-  const setResult = usePromptStore((s) => s.setResult);
-  const setError = usePromptStore((s) => s.setError);
 
-  const genSeqRef = useRef(0);
+  usePromptGeneration();
 
   const questions = useMemo(
     () => (category ? QUESTIONS_BY_CATEGORY[category] : []),
@@ -37,59 +34,6 @@ export function StepForm() {
   );
 
   const total = questions.length;
-
-  // 스텝 완료 직후 한 번만 생성 파이프라인 진입 (status === answering 일 때만)
-  useEffect(() => {
-    if (!category || total === 0) return;
-    if (currentStep < total) return;
-    if (status !== "answering") return;
-
-    const seq = ++genSeqRef.current;
-    setStatus("generating");
-    setError(null);
-
-    const snap = usePromptStore.getState();
-    const { originalInput, category: cat, answers: ans } = snap;
-
-    void (async () => {
-      if (!cat) {
-        if (seq === genSeqRef.current) {
-          setError("카테고리 정보가 없습니다.");
-          setStatus("error");
-        }
-        return;
-      }
-      try {
-        const systemInstruction = buildSystemPrompt({
-          category: cat,
-          answers: ans,
-        });
-        const text = await generateViaProxy({
-          prompt: originalInput,
-          systemInstruction,
-        });
-        if (seq !== genSeqRef.current) return;
-        setResult(text);
-        setStatus("done");
-      } catch (e) {
-        if (seq !== genSeqRef.current) return;
-        const msg =
-          e instanceof Error
-            ? e.message
-            : "알 수 없는 오류가 발생했습니다.";
-        setError(msg);
-        setStatus("error");
-      }
-    })();
-  }, [
-    category,
-    currentStep,
-    status,
-    total,
-    setStatus,
-    setResult,
-    setError,
-  ]);
 
   if (!category || questions.length === 0) return null;
 
@@ -183,19 +127,19 @@ function QuestionInput({ question }: { question: Question }) {
 
   if (question.type === "single") {
     return (
-      <Choice
+      <SingleChoice
         question={question}
         value={typeof answer === "string" ? answer : ""}
-        onChange={(v: string) => setAnswer(question.id, v)}
+        onChange={(v) => setAnswer(question.id, v)}
       />
     );
   }
   if (question.type === "multi") {
     return (
-      <Choice
+      <MultiChoice
         question={question}
         value={Array.isArray(answer) ? answer : []}
-        onChange={(v: string[]) => setAnswer(question.id, v)}
+        onChange={(v) => setAnswer(question.id, v)}
       />
     );
   }

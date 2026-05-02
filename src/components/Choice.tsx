@@ -23,29 +23,7 @@ interface MultiProps {
   onChange: (value: string[]) => void;
 }
 
-export type ChoiceProps = SingleProps | MultiProps;
-
-export function Choice(props: ChoiceProps) {
-  // question.type 으로 좁힘. props 자체의 union narrowing 의존하지 않고 분리 호출.
-  if (props.question.type === "single") {
-    return (
-      <SingleChoice
-        question={props.question}
-        value={props.value as string}
-        onChange={props.onChange as (v: string) => void}
-      />
-    );
-  }
-  return (
-    <MultiChoice
-      question={props.question}
-      value={props.value as string[]}
-      onChange={props.onChange as (v: string[]) => void}
-    />
-  );
-}
-
-function SingleChoice({ question, value, onChange }: SingleProps) {
+export function SingleChoice({ question, value, onChange }: SingleProps) {
   const choiceIds = useMemo(
     () => new Set(question.choices.map((c) => c.id)),
     [question.choices],
@@ -111,7 +89,7 @@ function SingleChoice({ question, value, onChange }: SingleProps) {
   );
 }
 
-function MultiChoice({ question, value, onChange }: MultiProps) {
+export function MultiChoice({ question, value, onChange }: MultiProps) {
   const choiceIds = useMemo(
     () => new Set(question.choices.map((c) => c.id)),
     [question.choices],

@@ -11,11 +11,11 @@
 |------|------|------|
 | P0-1 | system prompt 출력 형식 명시 | [x] |
 | P0-2 | priority를 system prompt에 실제 반영 | [x] |
-| P1-1 | `"classifying"` 죽은 상태 제거 | [ ] |
-| P1-2 | 분류기 오탐 키워드 수정 | [ ] |
-| P1-3 | Enter 키 제출 지원 (Cmd+Enter / Ctrl+Enter) | [ ] |
-| P1-4 | StepForm에서 API 호출 로직을 훅으로 분리 | [ ] |
-| P1-5 | Choice `as` 캐스팅 제거 | [ ] |
+| P1-1 | `"classifying"` 죽은 상태 제거 | [x] |
+| P1-2 | 분류기 오탐 키워드 수정 | [x] |
+| P1-3 | Enter 키 제출 지원 (Cmd+Enter / Ctrl+Enter) | [x] |
+| P1-4 | StepForm에서 API 호출 로직을 훅으로 분리 | [x] |
+| P1-5 | Choice `as` 캐스팅 제거 | [x] |
 | P2-1 | 결과 화면에 "다시 생성" 버튼 추가 | [ ] |
 | P2-2 | Gemini API 호출 timeout 추가 | [ ] |
 

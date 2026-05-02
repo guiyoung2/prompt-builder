@@ -169,6 +169,12 @@ function IntentInput() {
         id="prompt-input"
         value={input}
         onChange={(e) => setInput(e.target.value)}
+        onKeyDown={(e) => {
+          if ((e.metaKey || e.ctrlKey) && e.key === "Enter" && canSubmit) {
+            e.preventDefault();
+            handleStart();
+          }
+        }}
         placeholder="예) 히어로 섹션 구현해줘 / 로그인 API 만들어줘 / 무한 스크롤 버그 고쳐줘"
       />
       <SubmitButton type="button" disabled={!canSubmit} onClick={handleStart}>
