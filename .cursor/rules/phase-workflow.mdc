@@ -100,9 +100,9 @@ feat. 의도 분석 카테고리 분류기 구현
 
 ### Cursor 터미널 Auto-run (`커밋해줘`인데도 승인 팝업이 뜰 때)
 
-- 에이전트는 `Set-Location …; git add …; git commit …`처럼 **한 줄에 여러 명령**을 실행하는 경우가 많다.
-- `~/.cursor/permissions.json`의 allowlist는 그 **전체 실행 문자열** 기준으로 검사되는 경우가 많아, 목록에 `git commit`만 있어도 줄이 `Set-Location`으로 시작하면 매칭 실패로 승인 요청이 뜰 수 있다.
-- 완화는 사용자 Cursor 설정에서 Auto-run 모드·allowlist 조정(또는 신뢰 워크스페이스에서 제한 완화 등, 버전별 UI 따름).
+- `~/.cursor/permissions.json` allowlist는 통째 **실행 문자열**과 비교되는 경우가 많다. `Set-Location "…"; git status`는 목록의 `git status`와 **일치하지 않아** 승인 팝업이 뜬다.
+- **에이전트 필수**: Shell 호출 시 프로젝트 루트는 **`working_directory` 인자**로 넘기고, `command`에는 **`git status` / `git add` / `git commit` / `git push origin …` / `npm run build`**처럼 allowlist에 적어 둔 **단일 명령만** 쓴다 (`command` 앞에 `Set-Location …;` 붙이지 않음).
+- 사용자 측 완화: Cursor Auto-run 모드 조정·allowlist 확대 등(버전별 UI).
 
 ## 7. 예외 — Phase 외 요청
 
