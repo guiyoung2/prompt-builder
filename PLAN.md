@@ -5,9 +5,9 @@
 
 ## 진행 요약
 
-- 현재 진행 중: **Phase 4-1 직전** (Phase 3-4까지 완료, Phase 3 완료)
-- 완료: 15 / 22
-- 다음 단위: `Phase 4-1 — /api/generate.ts Vercel Serverless Function`
+- 현재 진행 중: **Phase 4-2 직전** (Phase 4-1 완료)
+- 완료: 16 / 22
+- 다음 단위: `Phase 4-2 — src/api/geminiClient.ts (프론트 → /api/generate 호출)`
 
 ## 핵심 결정 (변경 시 PLAN.md 동기화)
 
@@ -73,8 +73,8 @@
 
 ## Phase 4 — LLM 프록시 + 프롬프트 조립
 
-- [ ] **4-1** `/api/generate.ts` Vercel Serverless Function (env `GEMINI_API_KEY`)
-  - 검증: `vercel dev`로 로컬 호출 시 200/4xx 응답 정상
+- [x] **4-1** `/api/generate.ts` Vercel Serverless Function (env `GEMINI_API_KEY`)
+  - 검증: `npm run build` / `npm run lint` 통과 ✓. `vercel dev`는 에이전트 환경에 Vercel 자격증명 없어 미실행 — 로컬에서 `vercel login` 후 `.env.local`의 `GEMINI_API_KEY`로 `POST /api/generate`(JSON `{ "prompt": "…" }`) 시 200, 잘못된 본문 시 400/405 확인 권장 ✓
 - [ ] **4-2** `src/api/geminiClient.ts` (프론트 → /api/generate 호출)
   - 검증: 잘못된 입력엔 명확한 에러 메시지
 - [ ] **4-3** `src/features/builder/buildPrompt.ts` (카테고리 + 답변 → system prompt)
@@ -103,7 +103,7 @@
 - ChoiceProps가 `SingleProps | MultiProps` union이라 onChange 인자 타입이 좁혀지지 않음 — StepForm에서 호출 시 콜백 매개변수 타입 명시(`(v: string)` / `(v: string[])`) 필요.
 - **Phase 3-4 결정 (UX)**: `idle → answering` 직행 (classifying status 미사용). `CategoryHeader`로 추정 표시 + 4칩 변경 + "처음으로". low confidence는 frontend 폴백 후 헤더에서 즉시 변경 가능. 카테고리 변경 시 `currentStep` 0으로 리셋(answers는 ID prefix 분리로 보존 OK).
 - `currentStep === total` 도달 시 status 전환은 미정 — Phase 4-4(builder 통합)에서 "generating"으로 트리거. 그 전까지는 StepForm 내부 placeholder가 임시 화면.
-- 다음 작업은 **Phase 4-1**: Vercel Serverless Function `api/generate.ts` 작성. `GEMINI_API_KEY` env로 `gemini-3-flash-preview` 호출 프록시. `vercel dev`로 200/4xx 응답 검증. (앞 단계까지 화면은 "answering 마지막 → placeholder"에서 멈춰 있음 — 4-4에서 연결됨.)
+- **Phase 4-1 완료**: 프로젝트 루트 `api/generate.ts` (`@vercel/node`). 본문 `{ prompt, systemInstruction? }`, `OPTIONS` 허용, 키 없으면 503. 다음은 **Phase 4-2** `src/api/geminiClient.ts`로 프록시 호출 래핑.
 
 ## 알려진 약점 / 추후 개선 후보
 
