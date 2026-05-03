@@ -24,19 +24,32 @@ const HeaderInner = styled.div`
 const Title = styled.h1`
   margin: 0;
   font-size: 22px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: ${({ theme }) => theme.color.text};
+
+  @media (max-width: 600px) {
+    font-size: 18px;
+  }
 `;
 
 const Subtitle = styled.p`
   margin: ${({ theme }) => theme.space.xs} 0 0;
   color: ${({ theme }) => theme.color.textMuted};
   font-size: 14px;
+
+  @media (max-width: 600px) {
+    display: none;
+  }
 `;
 
 const Main = styled.main`
   flex: 1;
   padding: ${({ theme }) => theme.space.xxl} ${({ theme }) => theme.space.lg};
+
+  @media (max-width: 600px) {
+    padding: 20px 12px;
+  }
 `;
 
 const MainInner = styled.div`
@@ -44,40 +57,102 @@ const MainInner = styled.div`
   margin: 0 auto;
 `;
 
+// IntentInput 전용 큰 라운드 카드 컨테이너
 const InputCard = styled.section`
   background: ${({ theme }) => theme.color.surface};
   border: 1px solid ${({ theme }) => theme.color.border};
-  border-radius: ${({ theme }) => theme.radius.lg};
-  padding: ${({ theme }) => theme.space.xl};
-  box-shadow: ${({ theme }) => theme.shadow.sm};
+  border-radius: ${({ theme }) => theme.radius.xxl};
+  padding: 0;
+  box-shadow: ${({ theme }) => theme.shadow.md};
+  transition: box-shadow 0.2s ease;
+
+  &:focus-within {
+    box-shadow: ${({ theme }) => theme.shadow.lg};
+  }
+
+  @media (max-width: 600px) {
+    border-radius: ${({ theme }) => theme.radius.xl};
+  }
 `;
 
-const Label = styled.label`
-  display: block;
-  font-size: 14px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.color.textMuted};
-  margin-bottom: ${({ theme }) => theme.space.sm};
+// 로딩/에러 상태용 일반 카드 (내부 패딩 있음)
+const StateCard = styled.section`
+  background: ${({ theme }) => theme.color.surface};
+  border: 1px solid ${({ theme }) => theme.color.border};
+  border-radius: ${({ theme }) => theme.radius.xxl};
+  padding: ${({ theme }) => theme.space.xl};
+  box-shadow: ${({ theme }) => theme.shadow.md};
+
+  @media (max-width: 600px) {
+    border-radius: ${({ theme }) => theme.radius.xl};
+    padding: ${({ theme }) => theme.space.lg};
+  }
 `;
 
 const Textarea = styled.textarea`
   width: 100%;
-  min-height: 120px;
-  resize: vertical;
-  padding: ${({ theme }) => theme.space.md};
-  border: 1px solid ${({ theme }) => theme.color.border};
-  border-radius: ${({ theme }) => theme.radius.md};
-  background: ${({ theme }) => theme.color.surface};
+  min-height: 140px;
+  resize: none;
+  padding: 20px 24px 12px 24px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
   outline: none;
-  transition: border-color 0.15s ease;
   font: inherit;
-
-  &:focus {
-    border-color: ${({ theme }) => theme.color.primary};
-  }
+  font-size: 15px;
+  line-height: 1.6;
+  color: ${({ theme }) => theme.color.text};
 
   &::placeholder {
     color: ${({ theme }) => theme.color.textSubtle};
+  }
+
+  @media (max-width: 600px) {
+    min-height: 120px;
+    padding: 16px 16px 10px 16px;
+  }
+`;
+
+// textarea 아래 하단 액션 바
+const ActionBar = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px 14px 24px;
+  border-top: 1px solid ${({ theme }) => theme.color.border};
+
+  @media (max-width: 600px) {
+    padding: 8px 12px 12px 16px;
+  }
+`;
+
+const InputLabel = styled.span`
+  font-size: 13px;
+  color: ${({ theme }) => theme.color.textSubtle};
+  margin: 0;
+`;
+
+const SubmitButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  background: ${({ theme }) => theme.color.primary};
+  color: #fff;
+  border: none;
+  border-radius: ${({ theme }) => theme.radius.pill};
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: ${({ theme }) => theme.color.primaryHover};
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
   }
 `;
 
@@ -93,8 +168,8 @@ const LoadingRow = styled.div`
 
 const Spinner = styled.span`
   display: inline-block;
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
   border: 2px solid ${({ theme }) => theme.color.border};
   border-top-color: ${({ theme }) => theme.color.primary};
   border-radius: 50%;
@@ -121,25 +196,22 @@ const RetryFooter = styled.div`
   margin-top: ${({ theme }) => theme.space.sm};
 `;
 
-const SubmitButton = styled.button`
-  margin-top: ${({ theme }) => theme.space.lg};
-  padding: ${({ theme }) => theme.space.md} ${({ theme }) => theme.space.xl};
+const RetryButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
   background: ${({ theme }) => theme.color.primary};
   color: #fff;
   border: none;
-  border-radius: ${({ theme }) => theme.radius.md};
+  border-radius: ${({ theme }) => theme.radius.pill};
   font-weight: 600;
-  font-size: 15px;
+  font-size: 14px;
   cursor: pointer;
   transition: background-color 0.15s ease;
 
-  &:hover:not(:disabled) {
+  &:hover {
     background: ${({ theme }) => theme.color.primaryHover};
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
   }
 `;
 
@@ -179,25 +251,25 @@ function Workflow() {
 
   if (status === "analyzing") {
     return (
-      <InputCard>
+      <StateCard>
         <LoadingRow>
           <Spinner aria-hidden />
           <LoadingText>질문을 구성하는 중...</LoadingText>
         </LoadingRow>
-      </InputCard>
+      </StateCard>
     );
   }
 
   if (status === "error" && dynamicQuestions.length === 0) {
     return (
-      <InputCard>
+      <StateCard>
         <ErrorText role="alert">{error ?? "오류가 발생했습니다."}</ErrorText>
         <RetryFooter>
-          <SubmitButton type="button" onClick={() => setStatus("analyzing")}>
+          <RetryButton type="button" onClick={() => setStatus("analyzing")}>
             다시 시도
-          </SubmitButton>
+          </RetryButton>
         </RetryFooter>
-      </InputCard>
+      </StateCard>
     );
   }
 
@@ -222,22 +294,28 @@ function IntentInput() {
 
   return (
     <InputCard>
-      <Label htmlFor="prompt-input">어떤 작업이 필요하신가요?</Label>
       <Textarea
         id="prompt-input"
         value={input}
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={(e) => {
-          if ((e.metaKey || e.ctrlKey) && e.key === "Enter" && canSubmit) {
+          if (e.key === "Enter" && !e.shiftKey && canSubmit) {
             e.preventDefault();
             handleStart();
           }
         }}
-        placeholder="예) 히어로 섹션 구현해줘 / 로그인 API 만들어줘 / 무한 스크롤 버그 고쳐줘"
+        placeholder="어떤 작업이 필요하신가요? 예) 히어로 섹션 구현해줘 / 로그인 API 만들어줘"
+        aria-label="어떤 작업이 필요하신가요?"
       />
-      <SubmitButton type="button" disabled={!canSubmit} onClick={handleStart}>
-        시작하기
-      </SubmitButton>
+      <ActionBar>
+        <InputLabel>Enter로 시작 · Shift+Enter로 줄바꿈</InputLabel>
+        <SubmitButton type="button" disabled={!canSubmit} onClick={handleStart}>
+          시작하기
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </SubmitButton>
+      </ActionBar>
     </InputCard>
   );
 }
