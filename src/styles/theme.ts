@@ -1,12 +1,9 @@
-// 라이트 메인 + 결과 영역만 다크 패널 하이브리드 토큰
-// 추후 다크 모드 도입 시 동일 키 구조로 darkTheme 한 벌 추가하고
-// ThemeProvider에서 스왑하는 식으로 확장 가능.
-
 export const lightTheme = {
   color: {
     bg: "#fafbfc",
     surface: "#ffffff",
     surfaceMuted: "#f3f5f8",
+    surfaceHover: "#f1f5f9",
     border: "#e3e8ee",
     borderStrong: "#cdd5df",
     text: "#0f172a",
@@ -21,6 +18,11 @@ export const lightTheme = {
     danger: "#ef4444",
     success: "#10b981",
 
+    // 결과 마크다운 패널 (라이트)
+    resultBg: "#f8fafc",
+    resultBorder: "#e3e8ee",
+
+    // 기존 다크 코드 토큰 (타입 호환 유지)
     codeBg: "#0f172a",
     codeBorder: "#1e293b",
     codeText: "#e2e8f0",
@@ -30,6 +32,8 @@ export const lightTheme = {
     sm: "6px",
     md: "10px",
     lg: "14px",
+    xl: "20px",
+    xxl: "28px",
     pill: "999px",
   },
   space: {
@@ -45,9 +49,9 @@ export const lightTheme = {
     mono: `"JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, Menlo, monospace`,
   },
   shadow: {
-    sm: "0 1px 2px rgba(15, 23, 42, 0.04)",
-    md: "0 2px 8px rgba(15, 23, 42, 0.06)",
-    lg: "0 8px 24px rgba(15, 23, 42, 0.08)",
+    sm: "0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04)",
+    md: "0 4px 12px rgba(15, 23, 42, 0.08), 0 1px 4px rgba(15, 23, 42, 0.05)",
+    lg: "0 12px 32px rgba(15, 23, 42, 0.10), 0 4px 12px rgba(15, 23, 42, 0.06)",
   },
   layout: {
     maxWidth: "720px",
