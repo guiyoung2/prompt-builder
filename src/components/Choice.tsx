@@ -1,32 +1,36 @@
 import { useId, useMemo, useState } from "react";
 import styled from "styled-components";
-import type {
-  MultiChoiceQuestion,
-  SingleChoiceQuestion,
-} from "../types/question";
 
 // 단일/다중 선택 + "기타(직접 입력)"을 한 컴포넌트에서 처리.
-// 답변 표현 방식 (PLAN 결정: 옵션 B):
+// 답변 표현 방식:
 //   - 미리 정의된 choice 선택 시  → choice.id 그대로 저장
 //   - "기타" 직접 입력 시          → 입력한 자유 텍스트가 그대로 저장
 //   - multi의 "기타"는 1슬롯으로 한정 (배열 안에 choice id가 아닌 항목은 최대 1개)
 
+interface ChoiceOption {
+  id: string;
+  label: string;
+  description?: string;
+}
+
 interface SingleProps {
-  question: SingleChoiceQuestion;
+  choices: ChoiceOption[];
+  allowCustom?: boolean;
   value: string;
   onChange: (value: string) => void;
 }
 
 interface MultiProps {
-  question: MultiChoiceQuestion;
+  choices: ChoiceOption[];
+  allowCustom?: boolean;
   value: string[];
   onChange: (value: string[]) => void;
 }
 
-export function SingleChoice({ question, value, onChange }: SingleProps) {
+export function SingleChoice({ choices, allowCustom, value, onChange }: SingleProps) {
   const choiceIds = useMemo(
-    () => new Set(question.choices.map((c) => c.id)),
-    [question.choices],
+    () => new Set(choices.map((c) => c.id)),
+    [choices],
   );
   // 외부 value가 choice id가 아니면 = 자유 텍스트가 들어있는 상태
   const isExternallyCustom = value !== "" && !choiceIds.has(value);
@@ -39,7 +43,7 @@ export function SingleChoice({ question, value, onChange }: SingleProps) {
 
   return (
     <ChoiceList role="radiogroup">
-      {question.choices.map((c) => {
+      {choices.map((c) => {
         const selected = value === c.id;
         return (
           <ChoiceItem key={c.id} $selected={selected}>
@@ -59,7 +63,7 @@ export function SingleChoice({ question, value, onChange }: SingleProps) {
           </ChoiceItem>
         );
       })}
-      {question.allowCustom ? (
+      {allowCustom ? (
         <CustomRow>
           <ChoiceItem $selected={showCustom}>
             <input
@@ -89,10 +93,10 @@ export function SingleChoice({ question, value, onChange }: SingleProps) {
   );
 }
 
-export function MultiChoice({ question, value, onChange }: MultiProps) {
+export function MultiChoice({ choices, allowCustom, value, onChange }: MultiProps) {
   const choiceIds = useMemo(
-    () => new Set(question.choices.map((c) => c.id)),
-    [question.choices],
+    () => new Set(choices.map((c) => c.id)),
+    [choices],
   );
   // 배열 안에서 choice id가 아닌 첫 항목 = 자유 텍스트 슬롯
   const customText = useMemo(
@@ -126,7 +130,7 @@ export function MultiChoice({ question, value, onChange }: MultiProps) {
 
   return (
     <ChoiceList>
-      {question.choices.map((c) => {
+      {choices.map((c) => {
         const selected = value.includes(c.id);
         return (
           <ChoiceItem key={c.id} $selected={selected}>
@@ -142,7 +146,7 @@ export function MultiChoice({ question, value, onChange }: MultiProps) {
           </ChoiceItem>
         );
       })}
-      {question.allowCustom ? (
+      {allowCustom ? (
         <CustomRow>
           <ChoiceItem $selected={showCustom}>
             <input

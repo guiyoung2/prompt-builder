@@ -1,13 +1,12 @@
 import styled from "styled-components";
-import type { TextQuestion } from "../types/question";
 
 // 자유 텍스트 입력을 받는 컨트롤드 컴포넌트.
-// - TextQuestion 의 placeholder 를 그대로 입력란에 노출
+// - placeholder 를 그대로 입력란에 노출
 // - 외부 store/state 가 단일 source of truth (value/onChange 로 완전 컨트롤드)
 // - 멀티라인 가능성이 큰 질문(예: 제약사항)을 위해 textarea 사용
 
 interface Props {
-  question: TextQuestion;
+  question: { prompt: string; placeholder?: string };
   value: string;
   onChange: (value: string) => void;
 }

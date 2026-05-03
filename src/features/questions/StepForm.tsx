@@ -116,17 +116,17 @@ export function StepForm() {
   );
 }
 
-// 질문 타입별로 입력 컴포넌트를 분기. DynamicQuestion을 각 컴포넌트 props 형태로 어댑팅.
+// 질문 타입별로 입력 컴포넌트를 분기
 function QuestionInput({ question }: { question: DynamicQuestion }) {
   const answer = usePromptStore((s) => s.answers[question.id]);
   const setAnswer = usePromptStore((s) => s.setAnswer);
-  // DynamicChoice는 Choice의 subset (description 없지만 optional) — 구조 호환
   const choices = question.choices ?? [];
 
   if (question.type === "single") {
     return (
       <SingleChoice
-        question={{ id: question.id, prompt: question.text, type: "single", choices, allowCustom: question.allowCustom }}
+        choices={choices}
+        allowCustom={question.allowCustom}
         value={typeof answer === "string" ? answer : ""}
         onChange={(v) => setAnswer(question.id, v)}
       />
@@ -135,7 +135,8 @@ function QuestionInput({ question }: { question: DynamicQuestion }) {
   if (question.type === "multi") {
     return (
       <MultiChoice
-        question={{ id: question.id, prompt: question.text, type: "multi", choices, allowCustom: question.allowCustom }}
+        choices={choices}
+        allowCustom={question.allowCustom}
         value={Array.isArray(answer) ? answer : []}
         onChange={(v) => setAnswer(question.id, v)}
       />
@@ -143,7 +144,7 @@ function QuestionInput({ question }: { question: DynamicQuestion }) {
   }
   return (
     <TextInput
-      question={{ id: question.id, prompt: question.text, type: "text" }}
+      question={{ prompt: question.text }}
       value={typeof answer === "string" ? answer : ""}
       onChange={(v) => setAnswer(question.id, v)}
     />
