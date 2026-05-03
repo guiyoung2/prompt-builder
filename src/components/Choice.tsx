@@ -32,9 +32,7 @@ export function SingleChoice({ choices, allowCustom, value, onChange }: SinglePr
     () => new Set(choices.map((c) => c.id)),
     [choices],
   );
-  // 외부 value가 choice id가 아니면 = 자유 텍스트가 들어있는 상태
   const isExternallyCustom = value !== "" && !choiceIds.has(value);
-  // "기타" 라디오를 켰지만 아직 안 적은 상태(value === "")까지 커버하기 위한 내부 플래그
   const [customForced, setCustomForced] = useState(false);
   const showCustom = isExternallyCustom || customForced;
   const customText = isExternallyCustom ? value : "";
@@ -60,6 +58,7 @@ export function SingleChoice({ choices, allowCustom, value, onChange }: SinglePr
               <ChoiceLabel>{c.label}</ChoiceLabel>
               {c.description ? <ChoiceDesc>{c.description}</ChoiceDesc> : null}
             </ChoiceText>
+            {selected && <CheckMark aria-hidden="true">✓</CheckMark>}
           </ChoiceItem>
         );
       })}
@@ -78,6 +77,7 @@ export function SingleChoice({ choices, allowCustom, value, onChange }: SinglePr
             <ChoiceText>
               <ChoiceLabel>기타 (직접 입력)</ChoiceLabel>
             </ChoiceText>
+            {showCustom && <CheckMark aria-hidden="true">✓</CheckMark>}
           </ChoiceItem>
           {showCustom ? (
             <CustomInput
@@ -98,7 +98,6 @@ export function MultiChoice({ choices, allowCustom, value, onChange }: MultiProp
     () => new Set(choices.map((c) => c.id)),
     [choices],
   );
-  // 배열 안에서 choice id가 아닌 첫 항목 = 자유 텍스트 슬롯
   const customText = useMemo(
     () => value.find((v) => !choiceIds.has(v)) ?? "",
     [value, choiceIds],
@@ -143,6 +142,7 @@ export function MultiChoice({ choices, allowCustom, value, onChange }: MultiProp
               <ChoiceLabel>{c.label}</ChoiceLabel>
               {c.description ? <ChoiceDesc>{c.description}</ChoiceDesc> : null}
             </ChoiceText>
+            {selected && <CheckMark aria-hidden="true">✓</CheckMark>}
           </ChoiceItem>
         );
       })}
@@ -157,6 +157,7 @@ export function MultiChoice({ choices, allowCustom, value, onChange }: MultiProp
             <ChoiceText>
               <ChoiceLabel>기타 (직접 입력)</ChoiceLabel>
             </ChoiceText>
+            {showCustom && <CheckMark aria-hidden="true">✓</CheckMark>}
           </ChoiceItem>
           {showCustom ? (
             <CustomInput
@@ -175,34 +176,50 @@ export function MultiChoice({ choices, allowCustom, value, onChange }: MultiProp
 const ChoiceList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.space.sm};
+  gap: ${({ theme }) => theme.space.md};
+
+  @media (max-width: 600px) {
+    gap: ${({ theme }) => theme.space.sm};
+  }
 `;
 
 const ChoiceItem = styled.label<{ $selected: boolean }>`
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: ${({ theme }) => theme.space.md};
-  padding: ${({ theme }) => theme.space.md} ${({ theme }) => theme.space.lg};
-  border: 1px solid
+  padding: 14px 18px;
+  border: ${({ $selected }) => ($selected ? "2px" : "1.5px")} solid
     ${({ theme, $selected }) =>
       $selected ? theme.color.primary : theme.color.border};
   background: ${({ theme, $selected }) =>
     $selected ? theme.color.primarySoft : theme.color.surface};
-  border-radius: ${({ theme }) => theme.radius.md};
+  border-radius: ${({ theme }) => theme.radius.lg};
   cursor: pointer;
   transition:
     border-color 0.15s ease,
-    background-color 0.15s ease;
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
+  box-shadow: ${({ $selected }) =>
+    $selected ? "0 0 0 1px rgba(59, 130, 246, 0.3)" : "none"};
 
   &:hover {
     border-color: ${({ theme, $selected }) =>
       $selected ? theme.color.primary : theme.color.borderStrong};
+    background: ${({ theme, $selected }) =>
+      $selected ? theme.color.primarySoft : theme.color.surfaceHover};
   }
 
+  /* input 시각적으로 숨기되 접근성 유지 */
   input {
-    margin-top: 2px;
-    accent-color: ${({ theme }) => theme.color.primary};
-    cursor: pointer;
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+  }
+
+  @media (max-width: 600px) {
+    padding: 12px 14px;
   }
 `;
 
@@ -210,17 +227,34 @@ const ChoiceText = styled.div`
   display: flex;
   flex-direction: column;
   gap: 2px;
+  flex: 1;
 `;
 
 const ChoiceLabel = styled.span`
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   color: ${({ theme }) => theme.color.text};
 `;
 
 const ChoiceDesc = styled.span`
   font-size: 12px;
   color: ${({ theme }) => theme.color.textMuted};
+`;
+
+// 선택 체크 표시 (카드 우측)
+const CheckMark = styled.span`
+  margin-left: auto;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: ${({ theme }) => theme.color.primary};
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const CustomRow = styled.div`
@@ -230,17 +264,20 @@ const CustomRow = styled.div`
 `;
 
 const CustomInput = styled.input`
-  margin-left: ${({ theme }) => theme.space.xl};
-  padding: ${({ theme }) => theme.space.sm} ${({ theme }) => theme.space.md};
-  border: 1px solid ${({ theme }) => theme.color.border};
-  border-radius: ${({ theme }) => theme.radius.sm};
+  margin-top: 0;
+  padding: 10px 14px;
+  border: 1.5px solid ${({ theme }) => theme.color.border};
+  border-radius: ${({ theme }) => theme.radius.md};
   background: ${({ theme }) => theme.color.surface};
   font-size: 14px;
   outline: none;
-  transition: border-color 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 
   &:focus {
     border-color: ${({ theme }) => theme.color.primary};
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
   }
 
   &::placeholder {

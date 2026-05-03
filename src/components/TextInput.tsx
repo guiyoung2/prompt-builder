@@ -26,7 +26,7 @@ export function TextInput({ question, value, onChange }: Props) {
 const TextArea = styled.textarea`
   width: 100%;
   padding: ${({ theme }) => theme.space.md} ${({ theme }) => theme.space.lg};
-  border: 1px solid ${({ theme }) => theme.color.border};
+  border: 1.5px solid ${({ theme }) => theme.color.border};
   border-radius: ${({ theme }) => theme.radius.md};
   background: ${({ theme }) => theme.color.surface};
   color: ${({ theme }) => theme.color.text};
@@ -45,7 +45,7 @@ const TextArea = styled.textarea`
 
   &:focus {
     border-color: ${({ theme }) => theme.color.primary};
-    box-shadow: 0 0 0 3px ${({ theme }) => theme.color.primarySoft};
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
   }
 
   &::placeholder {
