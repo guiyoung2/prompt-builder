@@ -9,7 +9,7 @@ export interface PromptResultProps {
   onReset?: () => void;
 }
 
-// 생성 완료 후 다크 패널에 마크다운을 렌더하고, 원문 통째로 복사한다.
+// 생성 완료 후 라이트 패널에 마크다운을 렌더하고, 원문 통째로 복사한다.
 export function PromptResult({ markdown, onRegenerate, onReset }: PromptResultProps) {
   const [copyState, setCopyState] = useState<"idle" | "ok" | "err">("idle");
   const resetTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
@@ -49,7 +49,7 @@ export function PromptResult({ markdown, onRegenerate, onReset }: PromptResultPr
         <CopyActions>
           {copyState === "ok" ? (
             <CopyFeedback $tone="ok" role="status">
-              복사됨
+              ✓ 복사됨
             </CopyFeedback>
           ) : null}
           {copyState === "err" ? (
@@ -85,67 +85,83 @@ const ResultHeader = styled.div`
   justify-content: space-between;
   gap: ${({ theme }) => theme.space.md};
   flex-wrap: wrap;
+  margin-bottom: ${({ theme }) => theme.space.md};
+  padding-bottom: ${({ theme }) => theme.space.md};
+  border-bottom: 1px solid ${({ theme }) => theme.color.border};
 `;
 
 const ResultTitle = styled.h2`
   margin: 0;
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
   color: ${({ theme }) => theme.color.text};
+  letter-spacing: -0.01em;
 `;
 
 const CopyActions = styled.div`
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.space.sm};
+  flex-wrap: wrap;
 `;
 
 const CopyFeedback = styled.span<{ $tone: "ok" | "err" }>`
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: ${({ theme }) => theme.radius.pill};
+  background: ${({ $tone }) =>
+    $tone === "ok" ? "#d1fae5" : "#fee2e2"};
   color: ${({ theme, $tone }) =>
     $tone === "ok" ? theme.color.success : theme.color.danger};
 `;
 
 const CopyButton = styled.button`
-  padding: ${({ theme }) => theme.space.sm} ${({ theme }) => theme.space.lg};
+  padding: 6px 14px;
   background: ${({ theme }) => theme.color.surface};
   color: ${({ theme }) => theme.color.text};
-  border: 1px solid ${({ theme }) => theme.color.border};
-  border-radius: ${({ theme }) => theme.radius.md};
+  border: 1.5px solid ${({ theme }) => theme.color.border};
+  border-radius: ${({ theme }) => theme.radius.pill};
   font-weight: 600;
   font-size: 13px;
   cursor: pointer;
-  transition: border-color 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
 
   &:hover {
     border-color: ${({ theme }) => theme.color.borderStrong};
+    background: ${({ theme }) => theme.color.surfaceHover};
   }
 `;
 
 const ResetButton = styled.button`
-  padding: ${({ theme }) => theme.space.sm} ${({ theme }) => theme.space.lg};
-  background: ${({ theme }) => theme.color.surface};
+  padding: 6px 14px;
+  background: transparent;
   color: ${({ theme }) => theme.color.textMuted};
-  border: 1px solid ${({ theme }) => theme.color.border};
-  border-radius: ${({ theme }) => theme.radius.md};
+  border: 1.5px solid ${({ theme }) => theme.color.border};
+  border-radius: ${({ theme }) => theme.radius.pill};
   font-weight: 600;
   font-size: 13px;
   cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    color 0.15s ease;
 
   &:hover {
     border-color: ${({ theme }) => theme.color.borderStrong};
+    background: ${({ theme }) => theme.color.surfaceHover};
     color: ${({ theme }) => theme.color.text};
   }
 `;
 
 const RegenerateButton = styled.button`
-  padding: ${({ theme }) => theme.space.sm} ${({ theme }) => theme.space.lg};
+  padding: 6px 14px;
   background: ${({ theme }) => theme.color.primary};
   color: #fff;
   border: none;
-  border-radius: ${({ theme }) => theme.radius.md};
+  border-radius: ${({ theme }) => theme.radius.pill};
   font-weight: 600;
   font-size: 13px;
   cursor: pointer;
@@ -158,14 +174,14 @@ const RegenerateButton = styled.button`
 
 const MarkdownBody = styled.div`
   margin: 0;
-  padding: ${({ theme }) => theme.space.lg};
-  border-radius: ${({ theme }) => theme.radius.md};
-  border: 1px solid ${({ theme }) => theme.color.codeBorder};
-  background: ${({ theme }) => theme.color.codeBg};
-  color: ${({ theme }) => theme.color.codeText};
+  padding: ${({ theme }) => theme.space.xl};
+  border-radius: ${({ theme }) => theme.radius.lg};
+  border: 1px solid ${({ theme }) => theme.color.resultBorder};
+  background: ${({ theme }) => theme.color.resultBg};
+  color: ${({ theme }) => theme.color.text};
   font-family: ${({ theme }) => theme.font.sans};
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.7;
   max-height: min(70vh, 520px);
   overflow: auto;
   word-break: break-word;
@@ -175,8 +191,8 @@ const MarkdownBody = styled.div`
   h3,
   h4 {
     margin: 1.25em 0 0.5em;
-    font-weight: 600;
-    color: ${({ theme }) => theme.color.codeText};
+    font-weight: 700;
+    color: ${({ theme }) => theme.color.text};
     letter-spacing: -0.02em;
   }
 
@@ -225,24 +241,25 @@ const MarkdownBody = styled.div`
   }
 
   strong {
-    font-weight: 600;
-    color: ${({ theme }) => theme.color.codeText};
+    font-weight: 700;
+    color: ${({ theme }) => theme.color.text};
   }
 
   code {
     font-family: ${({ theme }) => theme.font.mono};
-    font-size: 0.9em;
+    font-size: 0.88em;
     padding: 0.15em 0.4em;
     border-radius: ${({ theme }) => theme.radius.sm};
-    background: rgba(255, 255, 255, 0.08);
+    background: ${({ theme }) => theme.color.surfaceMuted};
+    color: ${({ theme }) => theme.color.primaryText};
   }
 
   pre {
     margin: 0 0 1em;
     padding: ${({ theme }) => theme.space.md};
-    border-radius: ${({ theme }) => theme.radius.sm};
-    background: rgba(0, 0, 0, 0.25);
-    border: 1px solid ${({ theme }) => theme.color.codeBorder};
+    border-radius: ${({ theme }) => theme.radius.md};
+    background: ${({ theme }) => theme.color.surface};
+    border: 1px solid ${({ theme }) => theme.color.border};
     overflow: auto;
     font-family: ${({ theme }) => theme.font.mono};
     font-size: 13px;
@@ -252,19 +269,22 @@ const MarkdownBody = styled.div`
   pre code {
     padding: 0;
     background: transparent;
+    color: ${({ theme }) => theme.color.text};
     font-size: inherit;
   }
 
   blockquote {
     margin: 0 0 1em;
-    padding-left: 1em;
-    border-left: 3px solid ${({ theme }) => theme.color.codeMuted};
-    color: ${({ theme }) => theme.color.codeMuted};
+    padding: 8px 12px;
+    border-left: 3px solid ${({ theme }) => theme.color.primary};
+    background: ${({ theme }) => theme.color.primarySoft};
+    border-radius: 0 ${({ theme }) => theme.radius.sm} ${({ theme }) => theme.radius.sm} 0;
+    color: ${({ theme }) => theme.color.textMuted};
   }
 
   hr {
     border: none;
-    border-top: 1px solid ${({ theme }) => theme.color.codeBorder};
+    border-top: 1px solid ${({ theme }) => theme.color.border};
     margin: 1.5em 0;
   }
 
@@ -277,8 +297,13 @@ const MarkdownBody = styled.div`
 
   th,
   td {
-    border: 1px solid ${({ theme }) => theme.color.codeBorder};
+    border: 1px solid ${({ theme }) => theme.color.border};
     padding: ${({ theme }) => theme.space.sm} ${({ theme }) => theme.space.md};
     text-align: left;
+  }
+
+  th {
+    background: ${({ theme }) => theme.color.surfaceMuted};
+    font-weight: 600;
   }
 `;
