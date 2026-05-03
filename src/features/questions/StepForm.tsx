@@ -89,14 +89,12 @@ export function StepForm() {
 
   return (
     <Card>
-      <ProgressRow>
-        <ProgressLabel>
-          {currentStep + 1} / {total}
-        </ProgressLabel>
+      <StepIndicator>
+        <StepLabel>{currentStep + 1} / {total}</StepLabel>
         <ProgressBar>
           <ProgressFill style={{ width: `${progress}%` }} />
         </ProgressBar>
-      </ProgressRow>
+      </StepIndicator>
 
       <HeaderBlock>
         <Prompt>{question.text}</Prompt>
@@ -165,39 +163,46 @@ function hasAnswer(
 const Card = styled.section`
   background: ${({ theme }) => theme.color.surface};
   border: 1px solid ${({ theme }) => theme.color.border};
-  border-radius: ${({ theme }) => theme.radius.lg};
-  padding: ${({ theme }) => theme.space.xl};
-  box-shadow: ${({ theme }) => theme.shadow.sm};
+  border-radius: ${({ theme }) => theme.radius.xl};
+  padding: ${({ theme }) => theme.space.xxl};
+  box-shadow: ${({ theme }) => theme.shadow.md};
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.space.lg};
+  gap: ${({ theme }) => theme.space.xl};
+
+  @media (max-width: 600px) {
+    padding: ${({ theme }) => theme.space.xl};
+    gap: ${({ theme }) => theme.space.lg};
+  }
 `;
 
-const ProgressRow = styled.div`
+const StepIndicator = styled.div`
   display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.space.md};
+  flex-direction: column;
+  gap: ${({ theme }) => theme.space.sm};
 `;
 
-const ProgressLabel = styled.span`
-  font-size: 13px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.color.textMuted};
-  white-space: nowrap;
+const StepLabel = styled.span`
+  font-size: 12px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.color.primary};
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 `;
 
 const ProgressBar = styled.div`
-  flex: 1;
-  height: 6px;
+  width: 100%;
+  height: 4px;
   border-radius: ${({ theme }) => theme.radius.pill};
-  background: ${({ theme }) => theme.color.surfaceMuted};
+  background: ${({ theme }) => theme.color.border};
   overflow: hidden;
 `;
 
 const ProgressFill = styled.div`
   height: 100%;
-  background: ${({ theme }) => theme.color.primary};
-  transition: width 0.2s ease;
+  background: linear-gradient(90deg, ${({ theme }) => theme.color.primary}, ${({ theme }) => theme.color.primaryHover});
+  border-radius: ${({ theme }) => theme.radius.pill};
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 `;
 
 const HeaderBlock = styled.div`
@@ -208,26 +213,36 @@ const HeaderBlock = styled.div`
 
 const Prompt = styled.h2`
   margin: 0;
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 700;
   color: ${({ theme }) => theme.color.text};
-  letter-spacing: -0.01em;
-`;
+  letter-spacing: -0.02em;
+  line-height: 1.4;
 
+  @media (max-width: 600px) {
+    font-size: 17px;
+  }
+`;
 
 const Footer = styled.div`
   display: flex;
   justify-content: space-between;
   gap: ${({ theme }) => theme.space.md};
   margin-top: ${({ theme }) => theme.space.sm};
+  padding-top: ${({ theme }) => theme.space.lg};
+  border-top: 1px solid ${({ theme }) => theme.color.border};
+
+  @media (max-width: 600px) {
+    flex-direction: column-reverse;
+  }
 `;
 
 const PrimaryButton = styled.button`
-  padding: ${({ theme }) => theme.space.md} ${({ theme }) => theme.space.xl};
+  padding: 10px 24px;
   background: ${({ theme }) => theme.color.primary};
   color: #fff;
   border: none;
-  border-radius: ${({ theme }) => theme.radius.md};
+  border-radius: ${({ theme }) => theme.radius.pill};
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
@@ -241,26 +256,37 @@ const PrimaryButton = styled.button`
     opacity: 0.5;
     cursor: not-allowed;
   }
+
+  @media (max-width: 600px) {
+    width: 100%;
+  }
 `;
 
 const SecondaryButton = styled.button`
-  padding: ${({ theme }) => theme.space.md} ${({ theme }) => theme.space.xl};
-  background: ${({ theme }) => theme.color.surface};
+  padding: 10px 24px;
+  background: transparent;
   color: ${({ theme }) => theme.color.text};
-  border: 1px solid ${({ theme }) => theme.color.border};
-  border-radius: ${({ theme }) => theme.radius.md};
+  border: 1.5px solid ${({ theme }) => theme.color.border};
+  border-radius: ${({ theme }) => theme.radius.pill};
   font-weight: 500;
   font-size: 14px;
   cursor: pointer;
-  transition: border-color 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
 
   &:hover:not(:disabled) {
     border-color: ${({ theme }) => theme.color.borderStrong};
+    background: ${({ theme }) => theme.color.surfaceHover};
   }
 
   &:disabled {
     opacity: 0.4;
     cursor: not-allowed;
+  }
+
+  @media (max-width: 600px) {
+    width: 100%;
   }
 `;
 
@@ -278,8 +304,8 @@ const LoadingRow = styled.div`
 
 const Spinner = styled.span`
   display: inline-block;
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
   border: 2px solid ${({ theme }) => theme.color.border};
   border-top-color: ${({ theme }) => theme.color.primary};
   border-radius: 50%;
