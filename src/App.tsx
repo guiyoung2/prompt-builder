@@ -1,5 +1,6 @@
 import { useState } from "react";
-import styled, { keyframes } from "styled-components";
+import styled from "styled-components";
+import { LoadingRow, Spinner, LoadingText, ErrorText, RetryFooter } from "./components/shared.styles";
 import { StepForm } from "./features/questions/StepForm";
 import { useQuestionGeneration } from "./features/questions/useQuestionGeneration";
 import { usePromptStore } from "./store/promptStore";
@@ -156,64 +157,6 @@ const SubmitButton = styled.button`
   }
 `;
 
-const spin = keyframes`
-  to { transform: rotate(360deg); }
-`;
-
-const LoadingRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.space.md};
-`;
-
-const Spinner = styled.span`
-  display: inline-block;
-  width: 18px;
-  height: 18px;
-  border: 2px solid ${({ theme }) => theme.color.border};
-  border-top-color: ${({ theme }) => theme.color.primary};
-  border-radius: 50%;
-  animation: ${spin} 0.7s linear infinite;
-  flex-shrink: 0;
-`;
-
-const LoadingText = styled.p`
-  margin: 0;
-  color: ${({ theme }) => theme.color.textMuted};
-  font-size: 14px;
-`;
-
-const ErrorText = styled.p`
-  margin: 0;
-  color: ${({ theme }) => theme.color.danger};
-  font-size: 14px;
-  line-height: 1.5;
-`;
-
-const RetryFooter = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  margin-top: ${({ theme }) => theme.space.sm};
-`;
-
-const RetryButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 18px;
-  background: ${({ theme }) => theme.color.primary};
-  color: #fff;
-  border: none;
-  border-radius: ${({ theme }) => theme.radius.pill};
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background-color 0.15s ease;
-
-  &:hover {
-    background: ${({ theme }) => theme.color.primaryHover};
-  }
-`;
 
 function App() {
   return (
@@ -265,9 +208,9 @@ function Workflow() {
       <StateCard>
         <ErrorText role="alert">{error ?? "오류가 발생했습니다."}</ErrorText>
         <RetryFooter>
-          <RetryButton type="button" onClick={() => setStatus("analyzing")}>
+          <SubmitButton type="button" onClick={() => setStatus("analyzing")}>
             다시 시도
-          </RetryButton>
+          </SubmitButton>
         </RetryFooter>
       </StateCard>
     );

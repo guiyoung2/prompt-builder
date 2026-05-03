@@ -135,7 +135,13 @@ export default async function handler(
     clearTimeout(timeoutId);
   }
 
-  const geminiJson = (await geminiRes.json()) as GeminiApiResponse;
+  let geminiJson: GeminiApiResponse;
+  try {
+    geminiJson = (await geminiRes.json()) as GeminiApiResponse;
+  } catch {
+    res.status(502).json({ error: "Gemini 응답 JSON 파싱 실패" });
+    return;
+  }
 
   if (!geminiRes.ok) {
     const message =
