@@ -23,6 +23,7 @@ export function StepForm() {
   const goNext = usePromptStore((s) => s.goNext);
   const goPrev = usePromptStore((s) => s.goPrev);
   const setStatus = usePromptStore((s) => s.setStatus);
+  const reset = usePromptStore((s) => s.reset);
 
   usePromptGeneration();
 
@@ -66,6 +67,7 @@ export function StepForm() {
           <PromptResult
             markdown={result}
             onRegenerate={() => setStatus("answering")}
+            onReset={reset}
           />
         </Card>
       );

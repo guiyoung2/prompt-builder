@@ -6,10 +6,11 @@ export interface PromptResultProps {
   /** Gemini 등이 반환한 마크다운 본문 (클립보드에도 동일 문자열 복사) */
   markdown: string;
   onRegenerate?: () => void;
+  onReset?: () => void;
 }
 
 // 생성 완료 후 다크 패널에 마크다운을 렌더하고, 원문 통째로 복사한다.
-export function PromptResult({ markdown, onRegenerate }: PromptResultProps) {
+export function PromptResult({ markdown, onRegenerate, onReset }: PromptResultProps) {
   const [copyState, setCopyState] = useState<"idle" | "ok" | "err">("idle");
   const resetTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined,
@@ -64,6 +65,11 @@ export function PromptResult({ markdown, onRegenerate }: PromptResultProps) {
               다시 생성
             </RegenerateButton>
           ) : null}
+          {onReset ? (
+            <ResetButton type="button" onClick={onReset}>
+              새 프롬프트
+            </ResetButton>
+          ) : null}
         </CopyActions>
       </ResultHeader>
       <MarkdownBody>
@@ -114,6 +120,23 @@ const CopyButton = styled.button`
 
   &:hover {
     border-color: ${({ theme }) => theme.color.borderStrong};
+  }
+`;
+
+const ResetButton = styled.button`
+  padding: ${({ theme }) => theme.space.sm} ${({ theme }) => theme.space.lg};
+  background: ${({ theme }) => theme.color.surface};
+  color: ${({ theme }) => theme.color.textMuted};
+  border: 1px solid ${({ theme }) => theme.color.border};
+  border-radius: ${({ theme }) => theme.radius.md};
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    border-color: ${({ theme }) => theme.color.borderStrong};
+    color: ${({ theme }) => theme.color.text};
   }
 `;
 
